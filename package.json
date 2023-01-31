@@ -3,6 +3,8 @@
   "packageManager": "yarn@3.3.1",
   "type": "module",
   "scripts": {
+    "start": "NODE_ENV=production node server.js",
+    "dev": "NODE_ENV=development nodemon server.js",
     "lint": "eslint src/**",
     "lint:fix": "eslint --fix src/**",
     "format": "prettier --write .",
@@ -15,9 +17,10 @@
     "eslint-config-airbnb-base": "latest",
     "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-import": "^2.25.2",
+    "husky": "^8.0.0",
     "lint-staged": "^13.1.0",
-    "prettier": "^2.8.3",
-    "husky": "^8.0.0"
+    "nodemon": "^2.0.20",
+    "prettier": "^2.8.3"
   },
   "lint-staged": {
     "src/**/*.{js,jsx}": [
@@ -27,5 +30,12 @@
     "**/*.{json,css,scss,md,webmanifest,yml}": [
       "prettier -w"
     ]
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "mongoose": "^6.9.0",
+    "morgan": "^1.10.0"
   }
 }
