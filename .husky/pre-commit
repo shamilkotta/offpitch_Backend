@@ -1,0 +1,26 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+### since lint-staged covers all the prettier and lint chcking we don't need explicit format check
+# yarn run format:check ||
+# (
+#   echo "❗❗Prettier check failed😥, Run yarn run format, add changes and commit again❗❗"
+#   false;
+# )
+
+yarn run lint-staged ||
+(
+  echo '🟥🟥eslint check failed😥, try yarn run lint:fix or fix it manualy, add changes and commit again🟥🟥'
+  false;
+)
+
+### you can check for build process is working or not
+# echo "🟨 Alright... Code looks good, Trying to build now"
+
+# yarn run build ||
+# (
+#   echo "🟥🟥 Oh s**, build faild, View the errors above to see why🟥🟥"
+#   false;
+# )
+
+echo "🟩🟩 Everything looks good, commiting now 🟩🟩"

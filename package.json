@@ -1,0 +1,31 @@
+{
+  "name": "server",
+  "packageManager": "yarn@3.3.1",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint src/**",
+    "lint:fix": "eslint --fix src/**",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "postinstall": "husky install"
+  },
+  "devDependencies": {
+    "@yarnpkg/sdks": "^3.0.0-rc.37",
+    "eslint": "^7.32.0 || ^8.2.0",
+    "eslint-config-airbnb-base": "latest",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-plugin-import": "^2.25.2",
+    "lint-staged": "^13.1.0",
+    "prettier": "^2.8.3",
+    "husky": "^8.0.0"
+  },
+  "lint-staged": {
+    "src/**/*.{js,jsx}": [
+      "eslint --max-warnings=0",
+      "prettier -w"
+    ],
+    "**/*.{json,css,scss,md,webmanifest,yml}": [
+      "prettier -w"
+    ]
+  }
+}
