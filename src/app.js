@@ -1,15 +1,16 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
-import dotenv from "dotenv";
 import cors from "cors";
+
+// config env;
+import "dotenv/config";
 
 // routes
 import geustRouter from "./routes/index.js";
 import errorHandler from "./error/errorHandler.js";
 import connectDatbase from "./config/database.js";
 
-dotenv.config();
 const app = express();
 
 // enabling cores
