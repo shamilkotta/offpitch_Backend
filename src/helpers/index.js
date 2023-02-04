@@ -3,7 +3,7 @@ import crypto from "crypto";
 import { create } from "express-handlebars";
 import jwt from "jsonwebtoken";
 
-import sendMail from "../config/nodemailer.js";
+import transporter from "../config/nodemailer.js";
 import Verification from "../models/verification.js";
 
 // random profile pic genarator to use as default
@@ -17,6 +17,22 @@ export const compileHTMLEmailTemplate = (HTMLTemplatePath, replacements = {}) =>
   new Promise((resolve) => {
     const compiledHTML = create().render(HTMLTemplatePath, replacements);
     resolve(compiledHTML);
+  });
+
+// Email sending using nodemailer
+export const sendMail = (toEmail, subject, htmlContent) =>
+  new Promise((resolve, reject) => {
+    const mailOptions = {
+      from: process.env.G_MAIL_USERNAME,
+      to: toEmail,
+      subject,
+      html: htmlContent,
+    };
+
+    transporter.sendMail(mailOptions, (err) => {
+      if (err) reject(err);
+      else resolve({ success: true, message: "Mail send successfully" });
+    });
   });
 
 // sending email verification otp to mail
