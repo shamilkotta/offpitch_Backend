@@ -4,6 +4,8 @@ import mongoose from "mongoose";
 export default () => {
   const uri = process.env.MONGO_URI || "mongodb://0.0.0.0:27017/offpitch";
 
+  mongoose.set("strictQuery", false);
+
   mongoose
     .connect(uri)
     .then(() => {
