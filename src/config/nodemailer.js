@@ -1,29 +1,15 @@
 import * as nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
-  // requireTLS: true,
+  service: "gmail",
   auth: {
+    type: "OAuth2",
     user: process.env.G_MAIL_USERNAME,
-    pass: process.env.G_MAIL_APP_PASS,
+    clientId: process.env.OAUTH_CLIENTID,
+    clientSecret: process.env.OAUTH_CLIENT_SECRET,
+    refreshToken: process.env.OAUTH_REFRESH_TOKEN,
+    accessToken: process.env.OAUTH_ACCESS_TOKEN,
   },
 });
 
-const sendMail = (toEmail, subject, htmlContent) =>
-  new Promise((resolve, reject) => {
-    const mailOptions = {
-      from: process.env.G_MAIL_USERNAME,
-      to: toEmail,
-      subject,
-      html: htmlContent,
-    };
-
-    transporter.sendMail(mailOptions, (err) => {
-      if (err) reject(err);
-      else resolve({ success: true, message: "Mail send successfully" });
-    });
-  });
-
-export default sendMail;
+export default transporter;
