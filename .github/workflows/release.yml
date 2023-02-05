@@ -3,8 +3,6 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - "data/**"
 
 concurrency:
   group: "main-branch"
@@ -37,7 +35,6 @@ jobs:
         uses: TriPSs/conventional-changelog-action@v3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          version-file: "./package.json,./yarn.lock"
           git-branch: "release-from-${{ github.sha }}"
           skip-on-empty: false
           skip-git-pull: true
