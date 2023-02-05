@@ -11,11 +11,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout to branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Format code
-        id: check
-        run: yarn install && yarn format-code
+      - name: setup node env
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: install dependencies
+        run: yarn install
+
+      - name: run format
+        run: yarn run format
 
       - name: Create PR
         id: cpr
@@ -25,7 +32,7 @@ jobs:
           commit-message: "chore: code files prettified"
           branch: code-styling
           delete-branch: true
-          title: "chore: code files prettified"
+          title: "style: file formatted by prettier"
           body: |
             ### Code files formatted using prettier style
             - related workflow file : [.github/workflows/prettier.yml](https://github.com/shamilkotta/offpitch_BackEnd/blob/main/.github/workflows/prettier.yml)
