@@ -26,9 +26,9 @@ jobs:
 
       - name: Create PR
         id: cpr
-        uses: peter-evans/create-pull-request@v3
+        uses: peter-evans/create-pull-request@v4
         with:
-          token: ${{ secrets.WORKFLOW_ACCESS }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "chore: code files prettified"
           branch: code-styling
           delete-branch: true
@@ -37,5 +37,5 @@ jobs:
             ### Code files formatted using prettier style
             - related workflow file : [.github/workflows/prettier.yml](https://github.com/shamilkotta/offpitch_BackEnd/blob/main/.github/workflows/prettier.yml)
             - prettier config file : [.prettierrc](https://github.com/shamilkotta/offpitch_BackEnd/blob/main/.prettierrc)
-          labels: code-styling
+          labels: style
           assignees: shamilkotta
