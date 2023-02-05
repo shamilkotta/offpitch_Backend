@@ -22,15 +22,6 @@
     "nodemon": "^2.0.20",
     "prettier": "^2.8.3"
   },
-  "lint-staged": {
-    "src/**/*.{js,jsx}": [
-      "eslint --max-warnings=0",
-      "prettier -w"
-    ],
-    "**/*.{json,css,scss,md,webmanifest,yml}": [
-      "prettier -w"
-    ]
-  },
   "dependencies": {
     "bcrypt": "^5.1.0",
     "cookie-parser": "^1.4.6",
