@@ -31,9 +31,19 @@ const userSchema = new mongoose.Schema(
       type: [mongoose.Schema.Types.ObjectId],
       required: false,
     },
+    email_verification: {
+      type: String,
+      required: false,
+      default: "pending",
+    },
+    authToken: {
+      type: String,
+      required: false,
+    },
     status: {
       type: String,
       required: false,
+      default: "active",
     },
   },
   { timestamps: true }
