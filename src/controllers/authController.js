@@ -45,7 +45,9 @@ export const signupController = async (req, res, next) => {
     if (response.success)
       return res.status(200).json({
         success: true,
-        confirmToken: response.token,
+        data: {
+          confirmToken: response.token,
+        },
         message:
           "Account created successfully and verifications otp send to your email",
       });
@@ -82,11 +84,7 @@ export const emailVerificationController = async (req, res, next) => {
     });
 
     if (!result.deletedCount)
-      return next(
-        ErrorResponse.badRequest(
-          "Otp verification failed, try again with new one"
-        )
-      );
+      return next(ErrorResponse.badRequest("Invalid otp, generate new one"));
 
     user = await User.findOneAndUpdate(
       { email: payload.email },
@@ -111,7 +109,7 @@ export const emailVerificationController = async (req, res, next) => {
 
     res.cookie("authToken", refreshToken, {
       httpOnly: true,
-      secure: true,
+      // secure: true,
       sameSite: "None",
       maxAge: 1000 * 60 * 60 * 24 * 7,
     });
