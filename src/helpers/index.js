@@ -4,6 +4,8 @@ import { create } from "express-handlebars";
 import jwt from "jsonwebtoken";
 
 import transporter from "../config/nodemailer.js";
+import ErrorResponse from "../error/ErrorResponse.js";
+import User from "../models/user.js";
 import Verification from "../models/verification.js";
 
 // random profile pic genarator to use as default
@@ -70,6 +72,41 @@ export const sendVerificationOtp = (emailTemplatePath, email) =>
         token,
         message: "Verification mail send successfully",
       });
+    } catch (err) {
+      reject(err);
+    }
+  });
+
+export const authTokens = ({ email }) =>
+  new Promise(async (resolve, reject) => {
+    try {
+      const accessToken = jwt.sign(
+        { data: { email } },
+        process.env.ACCESS_TOKEN_SECRET,
+        {
+          expiresIn: 60 * 10,
+        }
+      );
+      const refreshToken = jwt.sign(
+        { data: { email } },
+        process.env.REFRESH_TOKEN_SECRET,
+        {
+          expiresIn: "7d",
+        }
+      );
+
+      const res = await User.updateOne(
+        { email },
+        { $set: { authToken: refreshToken } }
+      );
+
+      if (!res.modifiedCount)
+        reject(
+          ErrorResponse.badRequest(
+            "Otp verification failed, try again with new one"
+          )
+        );
+      else resolve({ accessToken, refreshToken });
     } catch (err) {
       reject(err);
     }
