@@ -31,10 +31,7 @@ const signupSchema = yup.object().shape({
 const signupValidation = (req, res, next) => {
   const { name, email, password } = req.body;
   signupSchema
-    .validate(
-      { name, email, password },
-      { stripUnknown: true, abortEarly: false }
-    )
+    .validate({ name, email, password }, { stripUnknown: true })
     .then((data) => {
       req.validData = data;
       next();
