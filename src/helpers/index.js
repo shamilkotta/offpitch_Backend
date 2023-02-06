@@ -40,11 +40,14 @@ export const sendMail = (toEmail, subject, htmlContent) =>
 // sending email verification otp to mail
 export const sendVerificationOtp = (email) =>
   new Promise(async (resolve, reject) => {
+    // creating token
+    const key = process.env.OTP_TOKEN_SECRET;
+    const token = jwt.sign({ email }, key, { expiresIn: 60 * 12 });
+
     // creating otp and save to db
-    let otp;
+    const otp = Math.floor(100000 + Math.random() * 900000);
     try {
-      otp = Math.floor(100000 + Math.random() * 900000);
-      await Verification.updateOne({ email }, { otp }, { upsert: true });
+      await Verification.updateOne({ email }, { otp, token }, { upsert: true });
     } catch (err) {
       reject(err);
     }
@@ -63,10 +66,6 @@ export const sendVerificationOtp = (email) =>
 
       // send mail
       await sendMail(email, "email verification otp", emailContent);
-
-      // creating token
-      const key = process.env.OTP_TOKEN_SECRET;
-      const token = jwt.sign({ email }, key, { expiresIn: 60 * 12 });
 
       resolve({
         success: true,

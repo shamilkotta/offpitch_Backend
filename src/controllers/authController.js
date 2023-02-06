@@ -77,6 +77,7 @@ export const emailVerificationController = async (req, res, next) => {
     const validTime = new Date(new Date() - 60000 * 11);
     const result = await Verification.deleteOne({
       email: payload?.email,
+      token,
       updatedAt: { $gt: validTime },
       otp,
     });
@@ -202,7 +203,7 @@ export const loginController = async (req, res, next) => {
           },
           message: "Email verification is pending",
         });
-      return next(ErrorResponse.badRequest("Something went wrong"));
+      return next(ErrorResponse.internalError("Something went wrong"));
     } catch (err) {
       return next(err);
     }
