@@ -10,6 +10,7 @@
     "sourceType": "module"
   },
   "rules": {
-    "import/extensions": "off"
+    "import/extensions": "off",
+    "import/no-cycle": "off"
   }
 }
