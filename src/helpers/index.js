@@ -62,8 +62,8 @@ export const sendVerificationOtp = (emailTemplatePath, email) =>
       await sendMail(email, "email verification otp", emailContent);
 
       // creating token
-      const key = process.env.JWT_KEY || "sfrqwexczx";
-      const token = jwt.sign({ email }, key, { expiresIn: 60 * 5 });
+      const key = process.env.OTP_TOKEN_SECRET;
+      const token = jwt.sign({ email }, key, { expiresIn: 60 * 12 });
 
       resolve({
         success: true,
