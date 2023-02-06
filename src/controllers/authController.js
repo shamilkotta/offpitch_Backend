@@ -117,6 +117,9 @@ export const emailVerificationController = async (req, res, next) => {
       success: true,
       message: "Email verified successfully",
       data: {
+        name: user.name,
+        email: user.email,
+        profile: user.profile_pic,
         accessToken,
       },
     });
@@ -226,6 +229,9 @@ export const loginController = async (req, res, next) => {
       success: true,
       message: "Email verified successfully",
       data: {
+        name: user.name,
+        email: user.email,
+        profile: user.profile_pic,
         accessToken,
       },
     });
