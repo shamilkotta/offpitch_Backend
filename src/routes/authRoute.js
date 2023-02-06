@@ -4,6 +4,7 @@ import {
   emailVerificationController,
   loginController,
   refreshController,
+  resendController,
   signupController,
 } from "../controllers/authController.js";
 import loginValidation from "../middlewares/validations/loginValidation.js";
@@ -20,5 +21,6 @@ router.post(
 );
 router.get("/refresh", refreshController);
 router.post("/login", loginValidation, loginController);
+router.get("/resend-otp/:token", resendController);
 
 export default router;

@@ -233,3 +233,59 @@ export const loginController = async (req, res, next) => {
     return next(err);
   }
 };
+
+export const resendController = async (req, res, next) => {
+  const { token } = req.params;
+
+  if (!token)
+    return next(
+      ErrorResponse.badRequest("Invalid credentials, try login again")
+    );
+
+  const currentTime = Date.now();
+
+  // verify token
+  let payload;
+  try {
+    payload = await jwt.verify(token, process.env.OTP_TOKEN_SECRET);
+  } catch (err) {
+    if (err.name === "TokenExpiredError")
+      return next(ErrorResponse.unauthorized("Unauthorized, try login again")); // error from token verification
+    if (err.name === "JsonWebTokenError" || err.name === "SyntaxError")
+      return next(ErrorResponse.unauthorized("Invalid credentials")); // error from token verification
+    return next(err);
+  }
+
+  try {
+    const getDoc = await Verification.findOne({
+      email: payload?.email,
+      token,
+    });
+    if (!getDoc) return next(ErrorResponse.forbidden("Invalid credentials"));
+  } catch (err) {
+    return next(err);
+  }
+
+  // checking is atleast 1 min gap between old otp
+  if ((currentTime - payload.iat * 1000) / 60000 <= 1)
+    return res.status(200).json({
+      success: false,
+      message: "Try after some time",
+    });
+
+  // sendin otp again to mail
+  try {
+    const response = await sendVerificationOtp(payload?.email);
+    if (response.success)
+      return res.status(200).json({
+        success: false,
+        data: {
+          confirmToken: response.token,
+        },
+        message: "Otp sent to your email",
+      });
+    return next(ErrorResponse.internalError("Something went wrong"));
+  } catch (err) {
+    return next(err);
+  }
+};
