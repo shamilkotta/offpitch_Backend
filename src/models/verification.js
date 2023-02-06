@@ -11,6 +11,10 @@ const verificationSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    token: {
+      type: String,
+      required: true,
+    },
   },
   { timestamps: true }
 );
