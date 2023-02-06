@@ -7,7 +7,7 @@ import cors from "cors";
 import "dotenv/config";
 
 // routes
-import geustRouter from "./routes/index.js";
+import authRoute from "./routes/authRoute.js";
 import errorHandler from "./error/errorHandler.js";
 import connectDatbase from "./config/database.js";
 
@@ -28,7 +28,7 @@ if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
 connectDatbase();
 
 // api/v1
-app.use("/api/v1", geustRouter);
+app.use("/api/auth", authRoute);
 
 // 404 routes
 app.use((req, res) => {

@@ -2,6 +2,7 @@ import express from "express";
 
 import {
   emailVerificationController,
+  refreshController,
   signupController,
 } from "../controllers/index.js";
 import signupValidation from "../middlewares/validations/signupValidation.js";
@@ -15,5 +16,6 @@ router.post(
   verifyEmailValidation,
   emailVerificationController
 );
+router.get("/refresh", refreshController);
 
 export default router;
