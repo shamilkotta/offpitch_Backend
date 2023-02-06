@@ -295,3 +295,33 @@ export const resendController = async (req, res, next) => {
     return next(err);
   }
 };
+
+export const logoutController = async (req, res, next) => {
+  const { cookies } = req;
+  if (!cookies.authToken)
+    return res.status(204).json({
+      success: true,
+      message: "Logged out successfully",
+    });
+
+  const decode = jwt.decode(cookies.authToken);
+  if (decode?.data?.email) {
+    try {
+      await User.updateOne(
+        {
+          email: decode.data.email,
+          authToken: cookies.authToken,
+        },
+        { $set: { authToken: "" } }
+      );
+    } catch (err) {
+      return next(err);
+    }
+  }
+
+  res.clearCookie("authToken", { httpOnly: true, sameSite: "None" });
+  return res.status(200).json({
+    success: true,
+    message: "Logged out successfully",
+  });
+};
