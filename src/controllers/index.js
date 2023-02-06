@@ -1,10 +1,12 @@
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
-import { sendVerificationOtp } from "../helpers/index.js";
+import { authTokens, sendVerificationOtp } from "../helpers/index.js";
 import User from "../models/user.js";
 import ErrorResponse from "../error/ErrorResponse.js";
+import Verification from "../models/verification.js";
 
-const signupController = async (req, res, next) => {
+export const signupController = async (req, res, next) => {
   const { name, email, password } = req.validData;
   let hashedpass;
 
@@ -27,7 +29,6 @@ const signupController = async (req, res, next) => {
       name,
       email,
       password: hashedpass,
-      status: "confirmation pending",
     });
     savedData = await newUser.save();
   } catch (err) {
@@ -55,4 +56,74 @@ const signupController = async (req, res, next) => {
   return next(ErrorResponse.badRequest("Something went wrong"));
 };
 
-export default signupController;
+export const emailVerificationController = async (req, res, next) => {
+  const { otp, token } = req.validData;
+
+  // verify token
+  let payload;
+  try {
+    payload = await jwt.verify(token, process.env.OTP_TOKEN_SECRET);
+  } catch (err) {
+    if (err.name === "TokenExpiredError")
+      return next(ErrorResponse.unauthorized("Invalid otp, generate new one")); // error from token verification
+    if (err.name === "JsonWebTokenError" || err.name === "SyntaxError")
+      return next(ErrorResponse.unauthorized("Invalid credentils")); // error from token verification
+    return next(err);
+  }
+
+  // if the otp is ontime and email and otp matches then it will be removed
+  let user;
+  try {
+    const validTime = new Date(new Date() - 60000 * 11);
+    const result = await Verification.deleteOne({
+      email: payload?.email,
+      updatedAt: { $gt: validTime },
+      otp,
+    });
+
+    if (!result.deletedCount)
+      return next(
+        ErrorResponse.badRequest(
+          "Otp verification failed, try again with new one"
+        )
+      );
+
+    user = await User.findOneAndUpdate(
+      { email: payload.email },
+      { $set: { email_verification: "success" } }
+    );
+
+    if (!user)
+      return next(
+        ErrorResponse.badRequest(
+          "Otp verification failed, try again with new one"
+        )
+      );
+  } catch (err) {
+    return next(err);
+  }
+
+  // generating new tokens and sending to user
+  try {
+    const { accessToken, refreshToken } = await authTokens({
+      email: user.email,
+    });
+
+    res.cookie("authToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Email verified successfully",
+      data: {
+        accessToken,
+      },
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
