@@ -38,7 +38,7 @@ export const sendMail = (toEmail, subject, htmlContent) =>
   });
 
 // sending email verification otp to mail
-export const sendVerificationOtp = (emailTemplatePath, email) =>
+export const sendVerificationOtp = (email) =>
   new Promise(async (resolve, reject) => {
     // creating otp and save to db
     let otp;
@@ -56,6 +56,7 @@ export const sendVerificationOtp = (emailTemplatePath, email) =>
 
     // reading email template and sending email
     try {
+      const emailTemplatePath = `./src/utils/otp-verification-email.html`;
       const emailContent = await compileHTMLEmailTemplate(emailTemplatePath, {
         otp: otpString,
       });
