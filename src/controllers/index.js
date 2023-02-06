@@ -127,3 +127,43 @@ export const emailVerificationController = async (req, res, next) => {
     return next(err);
   }
 };
+
+export const refreshController = async (req, res, next) => {
+  const { cookies } = req;
+  if (!cookies?.authToken)
+    return next(ErrorResponse.unauthorized("Unauthorized"));
+  const token = cookies.authToken;
+
+  // validate token
+  let decode;
+  try {
+    decode = await jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
+  } catch (err) {
+    return next(ErrorResponse.forbidden("Forbidden"));
+  }
+
+  // find user
+  let user;
+  try {
+    user = await User.findOne({ email: decode.data.email, authToken: token });
+    if (!user) return next(ErrorResponse.forbidden("Invalid credentials"));
+
+    const accessToken = jwt.sign(
+      { data: { email: user.email } },
+      process.env.ACCESS_TOKEN_SECRET,
+      {
+        expiresIn: 60 * 10,
+      }
+    );
+
+    return res.status(200).json({
+      success: false,
+      message: "token refreshed",
+      data: {
+        accessToken,
+      },
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
