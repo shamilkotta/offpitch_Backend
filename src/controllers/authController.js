@@ -37,11 +37,9 @@ export const signupController = async (req, res, next) => {
     return next(err);
   }
 
-  const emailTemplatePath = `./src/utils/otp-verification-email.html`;
-
   // confirmatoin mail
   try {
-    const response = await sendVerificationOtp(emailTemplatePath, email);
+    const response = await sendVerificationOtp(email);
     if (response.success)
       return res.status(200).json({
         success: true,
@@ -157,6 +155,75 @@ export const refreshController = async (req, res, next) => {
     return res.status(200).json({
       success: false,
       message: "token refreshed",
+      data: {
+        accessToken,
+      },
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const loginController = async (req, res, next) => {
+  const { email, password } = req.validData;
+
+  // find user
+  let user;
+  try {
+    user = await User.findOne({ email });
+    // invalid email
+    if (!user)
+      return next(ErrorResponse.badRequest("Invalid email or passwrod"));
+
+    const match = await bcrypt.compare(password, user.password);
+    // invalid password
+    if (!match)
+      return next(ErrorResponse.badRequest("Invalid email or passwrod"));
+  } catch (err) {
+    return next(err);
+  }
+
+  // blocked account
+  if (user?.status === "blocked")
+    return next(
+      ErrorResponse.forbidden("This account is blocked, contact support center")
+    );
+
+  // email vaerification pending
+  if (user?.email_verification === "pending") {
+    // confirmatoin mail
+    try {
+      const response = await sendVerificationOtp(email);
+      if (response.success)
+        return res.status(200).json({
+          success: false,
+          data: {
+            confirmToken: response.token,
+          },
+          message: "Email verification is pending",
+        });
+      return next(ErrorResponse.badRequest("Something went wrong"));
+    } catch (err) {
+      return next(err);
+    }
+  }
+
+  // generating new tokens and sending to user
+  try {
+    const { accessToken, refreshToken } = await authTokens({
+      email: user.email,
+    });
+
+    res.cookie("authToken", refreshToken, {
+      httpOnly: true,
+      // secure: true,
+      sameSite: "None",
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Email verified successfully",
       data: {
         accessToken,
       },
