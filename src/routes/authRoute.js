@@ -8,9 +8,9 @@ import {
   resendController,
   signupController,
 } from "../controllers/authController.js";
-import loginValidation from "../middlewares/validations/loginValidation.js";
-import signupValidation from "../middlewares/validations/signupValidation.js";
-import verifyEmailValidation from "../middlewares/validations/verifyEmailValidation.js";
+import loginValidation from "../middlewares/validations/auth/loginValidation.js";
+import signupValidation from "../middlewares/validations/auth/signupValidation.js";
+import verifyEmailValidation from "../middlewares/validations/auth/verifyEmailValidation.js";
 
 const router = express.Router();
 
