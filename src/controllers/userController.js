@@ -1,5 +1,9 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
+import cloudinary from "cloudinary";
+
 import ErrorResponse from "../error/ErrorResponse.js";
 import Organization from "../models/organization.js";
+import cloudinaryConfig from "../config/cloudinary.js";
 
 export const postOrganizationController = async (req, res, next) => {
   const { id } = req.userData;
@@ -25,4 +29,13 @@ export const postOrganizationController = async (req, res, next) => {
   return next(ErrorResponse.badRequest("Something went wrong"));
 };
 
-export default "hi";
+export const imageSignatureController = (req, res) => {
+  const timestamp = Math.round(new Date().getTime() / 1000);
+  const signature = cloudinary.v2.utils.api_sign_request(
+    {
+      timestamp,
+    },
+    cloudinaryConfig.api_secret
+  );
+  res.status(200).json({ success: true, data: { timestamp, signature } });
+};

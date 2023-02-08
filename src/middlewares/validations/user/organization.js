@@ -37,7 +37,7 @@ const organizationSchema = yup.object().shape({
 });
 
 const organizationValidation = (req, res, next) => {
-  const { name, email, phone, description, profile } = req.body;
+  const { name, email, phone, description, imageData: profile } = req.body;
   organizationSchema
     .validate(
       { name, email, phone, description, profile },
