@@ -1,5 +1,5 @@
 import * as yup from "yup";
-import ErrorResponse from "../../error/ErrorResponse.js";
+import ErrorResponse from "../../../error/ErrorResponse.js";
 
 const verifyEmailSchema = yup.object().shape({
   otp: yup
@@ -17,7 +17,7 @@ const verifyEmailValidation = (req, res, next) => {
   const { otp, token } = req.body;
 
   verifyEmailSchema
-    .validate({ otp, token }, { stripUnknown: true })
+    .validate({ otp, token }, { stripUnknown: true, abortEarly: false })
     .then((data) => {
       req.validData = data;
       return next();

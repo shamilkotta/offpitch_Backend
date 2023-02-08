@@ -1,5 +1,5 @@
 import * as yup from "yup";
-import ErrorResponse from "../../error/ErrorResponse.js";
+import ErrorResponse from "../../../error/ErrorResponse.js";
 
 const loginSchema = yup.object().shape({
   email: yup
@@ -18,7 +18,7 @@ const loginSchema = yup.object().shape({
 const loginValidation = (req, res, next) => {
   const { email, password } = req.body;
   loginSchema
-    .validate({ email, password }, { stripUnknown: true })
+    .validate({ email, password }, { stripUnknown: true, abortEarly: false })
     .then((data) => {
       req.validData = data;
       next();
