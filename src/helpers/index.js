@@ -77,18 +77,18 @@ export const sendVerificationOtp = (email) =>
     }
   });
 
-export const authTokens = ({ email }) =>
+export const authTokens = ({ email, id }) =>
   new Promise(async (resolve, reject) => {
     try {
       const accessToken = jwt.sign(
-        { data: { email } },
+        { data: { email, id } },
         process.env.ACCESS_TOKEN_SECRET,
         {
           expiresIn: 60 * 10,
         }
       );
       const refreshToken = jwt.sign(
-        { data: { email } },
+        { data: { email, id } },
         process.env.REFRESH_TOKEN_SECRET,
         {
           expiresIn: "7d",

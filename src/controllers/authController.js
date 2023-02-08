@@ -104,6 +104,7 @@ export const emailVerificationController = async (req, res, next) => {
   try {
     const { accessToken, refreshToken } = await authTokens({
       email: user.email,
+      id: user._id,
     });
 
     res.cookie("authToken", refreshToken, {
@@ -219,6 +220,7 @@ export const loginController = async (req, res, next) => {
   try {
     const { accessToken, refreshToken } = await authTokens({
       email: user.email,
+      id: user._id,
     });
 
     res.cookie("authToken", refreshToken, {
