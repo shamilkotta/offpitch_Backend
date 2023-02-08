@@ -108,7 +108,7 @@ export const emailVerificationController = async (req, res, next) => {
 
     res.cookie("authToken", refreshToken, {
       httpOnly: true,
-      // secure: true,
+      secure: true,
       sameSite: "None",
       maxAge: 1000 * 60 * 60 * 24 * 7,
     });
@@ -157,9 +157,12 @@ export const refreshController = async (req, res, next) => {
     );
 
     return res.status(200).json({
-      success: false,
+      success: true,
       message: "token refreshed",
       data: {
+        name: user.name,
+        email: user.email,
+        profile: user.profile_pic,
         accessToken,
       },
     });
@@ -220,7 +223,7 @@ export const loginController = async (req, res, next) => {
 
     res.cookie("authToken", refreshToken, {
       httpOnly: true,
-      // secure: true,
+      secure: true,
       sameSite: "None",
       maxAge: 1000 * 60 * 60 * 24 * 7,
     });
@@ -284,7 +287,7 @@ export const resendController = async (req, res, next) => {
     const response = await sendVerificationOtp(payload?.email);
     if (response.success)
       return res.status(200).json({
-        success: false,
+        success: true,
         data: {
           confirmToken: response.token,
         },
@@ -319,7 +322,11 @@ export const logoutController = async (req, res, next) => {
     }
   }
 
-  res.clearCookie("authToken", { httpOnly: true, sameSite: "None" });
+  res.clearCookie("authToken", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "None",
+  });
   return res.status(200).json({
     success: true,
     message: "Logged out successfully",
