@@ -1,6 +1,7 @@
 import express from "express";
 
 import {
+  getClubController,
   imageSignatureController,
   postClubController,
   postOrganizationController,
@@ -23,5 +24,8 @@ router.get("/image-signature", imageSignatureController);
 
 // create or update club
 router.post("/club", processImage, organizationValidation, postClubController);
+
+// get club data
+router.get("/club", getClubController);
 
 export default router;

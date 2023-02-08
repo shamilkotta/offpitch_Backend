@@ -67,3 +67,25 @@ export const postClubController = async (req, res, next) => {
 
   return next(ErrorResponse.badRequest("Something went wrong"));
 };
+
+export const getClubController = async (req, res, next) => {
+  const { id } = req.userData;
+
+  // find the club
+  try {
+    const club = await Club.findOne({ author: id }).exec();
+    if (!club)
+      return res.status(200).json({
+        success: false,
+        message: "You don't have a club",
+      });
+
+    return res.status(200).json({
+      success: true,
+      data: club,
+      message: "One club found ",
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
