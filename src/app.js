@@ -1,7 +1,6 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
-import cors from "cors";
 
 // config env;
 import "dotenv/config";
@@ -10,11 +9,12 @@ import "dotenv/config";
 import authRoute from "./routes/authRoute.js";
 import errorHandler from "./error/errorHandler.js";
 import connectDatbase from "./config/database.js";
+import cors from "./middlewares/cors.js";
 
 const app = express();
 
 // enabling cores
-app.use(cors());
+app.use(cors);
 
 // body parsers
 app.use(express.json());
