@@ -7,7 +7,7 @@ import cloudinaryConfig from "../config/cloudinary.js";
 import Club from "../models/club.js";
 
 // Create or update a organization page
-export const postOrganizationController = async (req, res, next) => {
+export const putOrganizationController = async (req, res, next) => {
   const { id } = req.userData;
   const organizationData = req.validData;
 
@@ -37,6 +37,7 @@ export const imageSignatureController = (req, res) => {
   const signature = cloudinary.v2.utils.api_sign_request(
     {
       timestamp,
+      folder: "offpitch",
     },
     cloudinaryConfig.api_secret
   );
@@ -44,7 +45,7 @@ export const imageSignatureController = (req, res) => {
 };
 
 // Create or update a organization page
-export const postClubController = async (req, res, next) => {
+export const putClubController = async (req, res, next) => {
   const { id } = req.userData;
   const clubData = req.validData;
 
@@ -88,4 +89,25 @@ export const getClubController = async (req, res, next) => {
   } catch (err) {
     return next(err);
   }
+};
+
+export const postPlayerController = async (req, res, next) => {
+  const { id } = req.userData;
+  const playerData = req.validData;
+
+  let result;
+  try {
+    result = await Club.updateOne(
+      { author: id },
+      { $push: { players: playerData } }
+    );
+  } catch (err) {
+    return next(err);
+  }
+
+  if (result.modifiedCount || result.upsertedCount)
+    return res
+      .status(200)
+      .json({ success: true, message: "New player added successfully" });
+  return next(ErrorResponse.badRequest("Can't find your club"));
 };

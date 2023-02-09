@@ -9,14 +9,14 @@ const processImage = (req, res, next) => {
 
   if (!raw) return next(ErrorResponse.badRequest("Image data is not valid"));
 
-  const { signature, publicId, version } = raw;
-  const expectedSignature = cloudinary.utils.api_sign_request(
+  const { signature, public_id: publicId, version } = raw;
+  const expectedSignature = cloudinary.v2.utils.api_sign_request(
     { public_id: publicId, version },
     cloudinaryConfig.api_secret
   );
 
   if (expectedSignature !== signature)
-    return ErrorResponse.badRequest("Image data is not valid");
+    return next(ErrorResponse.badRequest("Image data is not valid"));
 
   const url = `https://res.cloudinary.com/${cloudinaryConfig.cloud_name}/image/upload/w_200,h_100,c_fill,q_100/${publicId}.jpg`;
   req.body.imageData = url;
