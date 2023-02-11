@@ -14,6 +14,9 @@ const userAuthorization = async (req, res, next) => {
     return next(ErrorResponse.forbidden("Forbidden"));
   }
 
+  if (!decode.data.email || !decode.data.id)
+    return next(ErrorResponse.forbidden("Forbidden"));
+
   req.userData = decode.data;
   return next();
 };
