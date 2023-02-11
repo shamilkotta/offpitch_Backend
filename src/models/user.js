@@ -36,6 +36,14 @@ const userSchema = new mongoose.Schema(
       required: false,
       default: "pending",
     },
+    club: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: false,
+    },
+    organization: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: false,
+    },
     authToken: {
       type: String,
       required: false,
