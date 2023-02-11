@@ -121,6 +121,8 @@ export const emailVerificationController = async (req, res, next) => {
         name: user.name,
         email: user.email,
         profile: user.profile_pic,
+        club: user.club,
+        organization: user.organization,
         accessToken,
       },
     });
@@ -150,7 +152,7 @@ export const refreshController = async (req, res, next) => {
     if (!user) return next(ErrorResponse.forbidden("Invalid credentials"));
 
     const accessToken = jwt.sign(
-      { data: { email: user.email } },
+      { data: { email: user.email, id: user._id } },
       process.env.ACCESS_TOKEN_SECRET,
       {
         expiresIn: 60 * 10,
@@ -164,6 +166,8 @@ export const refreshController = async (req, res, next) => {
         name: user.name,
         email: user.email,
         profile: user.profile_pic,
+        club: user.club,
+        organization: user.organization,
         accessToken,
       },
     });
@@ -237,6 +241,8 @@ export const loginController = async (req, res, next) => {
         name: user.name,
         email: user.email,
         profile: user.profile_pic,
+        club: user.club,
+        organization: user.organization,
         accessToken,
       },
     });
