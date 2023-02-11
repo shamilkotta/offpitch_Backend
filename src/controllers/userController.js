@@ -1,10 +1,13 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import cloudinary from "cloudinary";
 
+import mongoose from "mongoose";
 import ErrorResponse from "../error/ErrorResponse.js";
 import Organization from "../models/organization.js";
 import cloudinaryConfig from "../config/cloudinary.js";
 import Club from "../models/club.js";
+import { getClubData } from "../helpers/user.js";
+import User from "../models/user.js";
 
 // Create or update a organization page
 export const putOrganizationController = async (req, res, next) => {
@@ -52,29 +55,50 @@ export const putClubController = async (req, res, next) => {
   // save data to db
   let result;
   try {
-    result = await Club.updateOne(
+    result = await Club.findOneAndUpdate(
       { author: id },
       { $set: { ...clubData } },
-      { upsert: true }
+      { upsert: true, new: true, rawResult: true }
     );
   } catch (err) {
     return next(err);
   }
 
-  if (result.modifiedCount || result.upsertedCount)
-    return res
-      .status(200)
-      .json({ success: true, message: "Club updated successfully" });
+  if (!result.value._id)
+    return next(ErrorResponse.badRequest("Something went wrong"));
 
-  return next(ErrorResponse.badRequest("Something went wrong"));
+  // if updated then send response
+  if (result.lastErrorObject.updatedExisting)
+    return res.status(200).json({
+      success: true,
+      message: "Club data updated successfully",
+      data: result,
+    });
+
+  // if upserted then save id to user profile
+  try {
+    const response = await User.updateOne(
+      { _id: id },
+      { $set: { club: result.value._id } }
+    );
+    if (response.modifiedCount)
+      return res
+        .status(200)
+        .json({ success: true, message: "New club created successfully" });
+
+    return next(ErrorResponse.badRequest("Something went wrong"));
+  } catch (err) {
+    return next(err);
+  }
 };
 
 export const getClubController = async (req, res, next) => {
-  const { id } = req.userData;
+  let { id } = req.userData;
+  id = mongoose.Types.ObjectId(id);
 
   // find the club
   try {
-    const club = await Club.findOne({ author: id }).exec();
+    const club = await getClubData({ author: id });
     if (!club)
       return res.status(200).json({
         success: false,
@@ -97,17 +121,19 @@ export const postPlayerController = async (req, res, next) => {
 
   let result;
   try {
-    result = await Club.updateOne(
+    result = await Club.findOneAndUpdate(
       { author: id },
-      { $push: { players: playerData } }
+      { $push: { players: playerData } },
+      { new: true, rawResult: true }
     );
   } catch (err) {
     return next(err);
   }
 
-  if (result.modifiedCount || result.upsertedCount)
-    return res
-      .status(200)
-      .json({ success: true, message: "New player added successfully" });
-  return next(ErrorResponse.badRequest("Can't find your club"));
+  if (result.value._id)
+    return res.status(200).json({
+      success: true,
+      message: "New player added successfully",
+    });
+  return next(ErrorResponse.badRequest("Can't find your club, login again"));
 };
