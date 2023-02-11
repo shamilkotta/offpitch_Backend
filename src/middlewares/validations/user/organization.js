@@ -27,8 +27,8 @@ const organizationSchema = yup.object().shape({
     .string()
     .trim()
     .required("Description can not be empty")
-    .min(50, "Too short description")
-    .max(160, "Too long description, maximum of 150 charecters"),
+    .min(200, "Too short description")
+    .max(260, "Too long description, maximum of 260 charecters"),
   profile: yup
     .string()
     .trim()
