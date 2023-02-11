@@ -5,11 +5,17 @@ import cloudinaryConfig from "../config/cloudinary.js";
 import ErrorResponse from "../error/ErrorResponse.js";
 
 const processImage = (req, res, next) => {
-  const raw = req.body?.imageData;
+  const rawUrl = req.body?.photoData;
+  if (rawUrl) {
+    req.body.imageData = rawUrl;
+    return next();
+  }
+  const rawData = req.body?.imageData;
 
-  if (!raw) return next(ErrorResponse.badRequest("Image data is not valid"));
+  if (!rawData)
+    return next(ErrorResponse.badRequest("Image data is not valid"));
 
-  const { signature, public_id: publicId, version } = raw;
+  const { signature, public_id: publicId, version } = rawData;
   const expectedSignature = cloudinary.v2.utils.api_sign_request(
     { public_id: publicId, version },
     cloudinaryConfig.api_secret
