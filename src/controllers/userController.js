@@ -17,21 +17,43 @@ export const putOrganizationController = async (req, res, next) => {
   // save data to db
   let result;
   try {
-    result = await Organization.updateOne(
+    result = await Organization.findOneAndUpdate(
       { author: id },
       { $set: { ...organizationData } },
-      { upsert: true }
+      { upsert: true, new: true, rawResult: true }
     );
   } catch (err) {
     return next(err);
   }
 
-  if (result.modifiedCount || result.upsertedCount)
-    return res
-      .status(200)
-      .json({ success: true, message: "Organization updated successfully" });
+  if (!result.value._id)
+    return next(ErrorResponse.badRequest("Something went wrong"));
 
-  return next(ErrorResponse.badRequest("Something went wrong"));
+  // if updated then send response
+  if (result.lastErrorObject.updatedExisting)
+    return res.status(200).json({
+      success: true,
+      message: "Organization data updated successfully",
+      data: result,
+    });
+
+  // if upserted then save id to user profile
+  try {
+    const response = await User.updateOne(
+      { _id: id },
+      { $set: { organization: result.value._id } }
+    );
+
+    if (response.modifiedCount)
+      return res.status(200).json({
+        success: true,
+        message: "New organization created successfully",
+      });
+
+    return next(ErrorResponse.badRequest("Something went wrong"));
+  } catch (err) {
+    return next(err);
+  }
 };
 
 // generate signature for image upload
