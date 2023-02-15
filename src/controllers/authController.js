@@ -1,7 +1,12 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-import { authTokens, sendVerificationOtp } from "../helpers/index.js";
+import {
+  authTokens,
+  compileHTMLEmailTemplate,
+  sendMail,
+  sendVerificationOtp,
+} from "../helpers/index.js";
 import User from "../models/user.js";
 import ErrorResponse from "../error/ErrorResponse.js";
 import Verification from "../models/verification.js";
@@ -339,4 +344,55 @@ export const logoutController = async (req, res, next) => {
     success: true,
     message: "Logged out successfully",
   });
+};
+
+export const forgotPasswordController = async (req, res, next) => {
+  const { email } = req.body;
+
+  // validating email
+  if (
+    !email ||
+    !/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
+      email
+    )
+  ) {
+    return next(ErrorResponse.badRequest("Enter your email"));
+  }
+
+  // check for eamil
+  let user;
+  try {
+    user = await User.findOne({ email });
+
+    // if user send reset link otherwise we will ignore
+    if (!user)
+      return res.status(200).json({
+        success: true,
+        message: "Password reset link send to your email",
+      });
+  } catch (err) {
+    return next(err);
+  }
+
+  try {
+    const key = process.env.OTP_TOKEN_SECRET;
+    const token = jwt.sign({ email: user.email }, key, { expiresIn: 60 * 10 });
+    const url = `${process.env.CLIENT_URL}/reset-password/${token}`;
+
+    const emailTemplatePath = `./src/utils/reset-password-email.html`;
+    const emailContent = await compileHTMLEmailTemplate(emailTemplatePath, {
+      resetUrl: url,
+    });
+
+    // send mail
+    await sendMail(email, "email verification otp", emailContent);
+
+    // success
+    return res.status(200).json({
+      success: true,
+      message: "Password reset link send to your email",
+    });
+  } catch (err) {
+    return next(err);
+  }
 };
