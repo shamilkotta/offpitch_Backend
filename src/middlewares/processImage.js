@@ -24,7 +24,7 @@ const processImage = (req, res, next) => {
   if (expectedSignature !== signature)
     return next(ErrorResponse.badRequest("Image data is not valid"));
 
-  const url = `https://res.cloudinary.com/${cloudinaryConfig.cloud_name}/image/upload/w_200,h_100,c_fill,q_100/${publicId}.jpg`;
+  const url = `https://res.cloudinary.com/${cloudinaryConfig.cloud_name}/image/upload/c_fill,q_100/${publicId}.jpg`;
   req.body.imageData = url;
   return next();
   // https://res.cloudinary.com/${cloudinaryConfig.cloud_name}/image/upload/w_200,h_100,c_fill,q_100/zj4rbidxzvhu2bozdxzj.jpg
