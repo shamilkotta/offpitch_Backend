@@ -7,10 +7,12 @@ import {
   putOrganizationController,
   postPlayerController,
   getOrganizationController,
+  putTournamentController,
 } from "../controllers/userController.js";
 import processImage from "../middlewares/processImage.js";
 import organizationValidation from "../middlewares/validations/user/organization.js";
 import playerValidation from "../middlewares/validations/user/player.js";
+import tournamentValidation from "../middlewares/validations/user/tournament.js";
 
 const router = express.Router();
 
@@ -36,5 +38,12 @@ router.get("/club", getClubController);
 
 // create player in club
 router.post("/player", processImage, playerValidation, postPlayerController);
+
+router.put(
+  "/tournament",
+  processImage,
+  tournamentValidation,
+  putTournamentController
+);
 
 export default router;

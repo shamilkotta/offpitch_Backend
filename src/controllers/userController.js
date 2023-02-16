@@ -8,6 +8,7 @@ import cloudinaryConfig from "../config/cloudinary.js";
 import Club from "../models/club.js";
 import { getClubData, getOrganizationData } from "../helpers/user.js";
 import User from "../models/user.js";
+import Tournament from "../models/tournament.js";
 
 // Create or update a organization page
 export const putOrganizationController = async (req, res, next) => {
@@ -180,6 +181,46 @@ export const getOrganizationController = async (req, res, next) => {
       success: true,
       data: club,
       message: "One organization found ",
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const putTournamentController = async (req, res, next) => {
+  const id = req.body?.id || new mongoose.Types.ObjectId();
+  const data = req.validData;
+  const { id: userId } = req.userData;
+
+  // find organization
+  let user;
+  try {
+    user = await User.findOne({ _id: userId });
+    if (!user?.organization)
+      return next(ErrorResponse.unauthorized("You don't have a organization"));
+  } catch (err) {
+    return next(err);
+  }
+
+  // upsert the data into db
+  try {
+    const response = await Tournament.findOneAndUpdate(
+      {
+        _id: id,
+        host: user.organization,
+      },
+      { $set: { ...data, host: user.organization } },
+      { upsert: true, new: true, rawResult: true }
+    );
+
+    // return response
+    return res.status(200).json({
+      success: true,
+      message: "Tournament data saved successfully",
+      data: {
+        id: response.value._id,
+        cover: response.value.cover,
+      },
     });
   } catch (err) {
     return next(err);
