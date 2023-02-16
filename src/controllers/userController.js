@@ -6,7 +6,7 @@ import ErrorResponse from "../error/ErrorResponse.js";
 import Organization from "../models/organization.js";
 import cloudinaryConfig from "../config/cloudinary.js";
 import Club from "../models/club.js";
-import { getClubData } from "../helpers/user.js";
+import { getClubData, getOrganizationData } from "../helpers/user.js";
 import User from "../models/user.js";
 
 // Create or update a organization page
@@ -59,10 +59,13 @@ export const putOrganizationController = async (req, res, next) => {
 // generate signature for image upload
 export const imageSignatureController = (req, res) => {
   const timestamp = Math.round(new Date().getTime() / 1000);
+  // const expiration = Math.round(new Date().getTime() / 1000) + 1200;
   const signature = cloudinary.v2.utils.api_sign_request(
     {
       timestamp,
       folder: "offpitch",
+      // max_calls: 10, // maximum number of requests in a 120-second period
+      // max_seconds: 60, // time period (in 2 seconds)
     },
     cloudinaryConfig.api_secret
   );
@@ -158,4 +161,27 @@ export const postPlayerController = async (req, res, next) => {
       message: "New player added successfully",
     });
   return next(ErrorResponse.badRequest("Can't find your club, login again"));
+};
+
+export const getOrganizationController = async (req, res, next) => {
+  let { id } = req.userData;
+  id = mongoose.Types.ObjectId(id);
+
+  // find the org
+  try {
+    const club = await getOrganizationData({ author: id });
+    if (!club)
+      return res.status(200).json({
+        success: false,
+        message: "You don't have a organization",
+      });
+
+    return res.status(200).json({
+      success: true,
+      data: club,
+      message: "One organization found ",
+    });
+  } catch (err) {
+    return next(err);
+  }
 };

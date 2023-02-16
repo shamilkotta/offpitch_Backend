@@ -6,6 +6,7 @@ import {
   putClubController,
   putOrganizationController,
   postPlayerController,
+  getOrganizationController,
 } from "../controllers/userController.js";
 import processImage from "../middlewares/processImage.js";
 import organizationValidation from "../middlewares/validations/user/organization.js";
@@ -20,6 +21,9 @@ router.put(
   organizationValidation,
   putOrganizationController
 );
+
+// get organization data
+router.get("/organization", getOrganizationController);
 
 // get signature for image upload to cloudinary
 router.get("/image-signature", imageSignatureController);
