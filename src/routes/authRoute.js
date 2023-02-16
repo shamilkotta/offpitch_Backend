@@ -7,9 +7,11 @@ import {
   logoutController,
   refreshController,
   resendController,
+  resetPasswordController,
   signupController,
 } from "../controllers/authController.js";
 import loginValidation from "../middlewares/validations/auth/loginValidation.js";
+import resetPasswordValidation from "../middlewares/validations/auth/resetPasswordValidation.js";
 import signupValidation from "../middlewares/validations/auth/signupValidation.js";
 import verifyEmailValidation from "../middlewares/validations/auth/verifyEmailValidation.js";
 
@@ -20,11 +22,23 @@ router.post(
   verifyEmailValidation,
   emailVerificationController
 );
+
 router.post("/signup", signupValidation, signupController);
+
 router.get("/refresh", refreshController);
+
 router.post("/login", loginValidation, loginController);
+
 router.get("/resend-otp/:token", resendController);
+
 router.get("/logout", logoutController);
+
 router.post("/forgot-password", forgotPasswordController);
+
+router.post(
+  "/reset-password",
+  resetPasswordValidation,
+  resetPasswordController
+);
 
 export default router;

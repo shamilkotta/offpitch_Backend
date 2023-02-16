@@ -396,3 +396,49 @@ export const forgotPasswordController = async (req, res, next) => {
     return next(err);
   }
 };
+
+export const resetPasswordController = async (req, res, next) => {
+  const { token, password } = req.validData;
+  let hashedpass;
+
+  let decode;
+  try {
+    decode = await jwt.verify(token, process.env.OTP_TOKEN_SECRET);
+  } catch (err) {
+    if (err.name === "TokenExpiredError")
+      return next(
+        ErrorResponse.badRequest("Reset link expired, generate new one")
+      );
+    return next(ErrorResponse.forbidden("Invalid reset link"));
+  }
+
+  if (!decode.email) return next(ErrorResponse.forbidden("Invalid reset link"));
+
+  // generating password hash
+  try {
+    const saltRounds = Number(process.env.SALT_ROUNDS) || 10;
+    hashedpass = await bcrypt.hash(password, saltRounds);
+  } catch (err) {
+    return next(err);
+  }
+
+  // update password
+  try {
+    const response = await User.updateOne(
+      { email: decode.email },
+      { $set: { password: hashedpass } }
+    );
+
+    if (!response.modifiedCount)
+      return next(
+        ErrorResponse.internalError("Something went wrong, try again")
+      );
+  } catch (err) {
+    return next(err);
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Password updated successfully",
+  });
+};
