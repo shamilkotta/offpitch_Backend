@@ -8,6 +8,8 @@ import {
   postPlayerController,
   getOrganizationController,
   putTournamentController,
+  getTournamentsController,
+  getTournamentController,
 } from "../controllers/userController.js";
 import processImage from "../middlewares/processImage.js";
 import organizationValidation from "../middlewares/validations/user/organization.js";
@@ -39,11 +41,18 @@ router.get("/club", getClubController);
 // create player in club
 router.post("/player", processImage, playerValidation, postPlayerController);
 
+// create tournament
 router.put(
   "/tournament",
   processImage,
   tournamentValidation,
   putTournamentController
 );
+
+// get all tournaments
+router.get("/tournaments", getTournamentsController);
+
+// get a tournament
+router.get("/tournament/:id", getTournamentController);
 
 export default router;
