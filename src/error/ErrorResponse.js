@@ -17,6 +17,10 @@ class ErrorResponse extends Error {
     return new ErrorResponse(403, msg);
   }
 
+  static notFound(msg = "Not found") {
+    return new ErrorResponse(404, msg);
+  }
+
   static internalError(msg) {
     return new ErrorResponse(500, msg);
   }
