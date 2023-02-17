@@ -12,14 +12,12 @@ const stepOneSchema = yup.object().shape({
     .string()
     .trim()
     .required("Title can not be empty")
-    .min(100, "Too short title")
-    .max(200, "Too long title, maximum of 200 characters"),
+    .min(10, "Too short title"),
   short_description: yup
     .string()
     .trim()
     .required("Description can not be empty")
-    .min(300, "Too short description")
-    .max(400, "Too long description, maximum of 400 characters"),
+    .min(200, "Too short description"),
   start_date: yup
     .date()
     .typeError("Please add valid starting date")
@@ -30,8 +28,7 @@ const stepOneSchema = yup.object().shape({
     .string()
     .trim()
     .required("About section can not be empty")
-    .min(500, "Too short about")
-    .max(1000, "Too long description"),
+    .min(500, "Too short about"),
 });
 
 const stepTwoSchema = yup.object().shape({

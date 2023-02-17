@@ -1,7 +1,7 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import cloudinary from "cloudinary";
-
 import mongoose from "mongoose";
+
 import ErrorResponse from "../error/ErrorResponse.js";
 import Organization from "../models/organization.js";
 import cloudinaryConfig from "../config/cloudinary.js";
@@ -208,6 +208,7 @@ export const putTournamentController = async (req, res, next) => {
       {
         _id: id,
         host: user.organization,
+        status: { $nin: ["active", "ended"] },
       },
       { $set: { ...data, host: user.organization } },
       { upsert: true, new: true, rawResult: true }
@@ -221,6 +222,120 @@ export const putTournamentController = async (req, res, next) => {
         id: response.value._id,
         cover: response.value.cover,
       },
+    });
+  } catch (err) {
+    if (err.codeName === "DuplicateKey")
+      return next(ErrorResponse.badRequest("You can't edit this tournament"));
+    return next(err);
+  }
+};
+
+// get all tournament of user
+export const getTournamentsController = async (req, res, next) => {
+  const { id } = req.userData;
+
+  // find org
+  let result;
+  try {
+    result = await User.findOne({ _id: id });
+    if (!result?.organization)
+      return next(ErrorResponse.forbidden("Can't find the organization"));
+  } catch (err) {
+    return next(err);
+  }
+
+  // get tournament data
+  try {
+    const data = await Tournament.aggregate([
+      {
+        $match: {
+          host: result.organization,
+        },
+      },
+      {
+        $addFields: {
+          start_date: {
+            $dateToString: {
+              format: "%d/%m/%Y",
+              date: "$start_date",
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          cover: 1,
+          title: 1,
+          short_description: 1,
+          location: 1,
+          start_date: 1,
+          status: 1,
+        },
+      },
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+// get data about the tournament
+export const getTournamentController = async (req, res, next) => {
+  const { id } = req.params;
+  const { id: userId } = req.userData;
+  if (!id) return next(ErrorResponse.notFound());
+
+  // find organization
+  let user;
+  try {
+    user = await User.findOne({ _id: userId });
+    if (!user?.organization)
+      return next(ErrorResponse.forbidden("You don't have a organization"));
+  } catch (err) {
+    return next(err);
+  }
+
+  // find tournament data
+  try {
+    const tournament = await Tournament.aggregate([
+      {
+        $match: {
+          _id: mongoose.Types.ObjectId(id),
+          host: user.organization,
+        },
+      },
+      {
+        $addFields: {
+          id: "$_id",
+          start_date: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$start_date",
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+        },
+      },
+    ]);
+
+    if (!tournament[0])
+      return res.status(200).json({
+        success: false,
+        message: "Can't find the tournament",
+      });
+
+    return res.status(200).json({
+      success: true,
+      message: "Found one tournament",
+      data: tournament[0],
     });
   } catch (err) {
     return next(err);
