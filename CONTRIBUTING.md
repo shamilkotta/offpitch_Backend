@@ -54,6 +54,6 @@ git push origin <your-branch-name>
 
 ## ![issue](https://user-images.githubusercontent.com/73386156/147833747-add74383-644d-42f4-8c24-f061e5e69a18.png) Making issues for improvements
 
-**In order to discuss changes, you are welcome to [open an issue](https://github.com/shamilkotta/offpitch_Backend/issues/new) about what you would like to contribute. Enhancements are always encouraged and appreciated.**
+**In order to discuss changes, you are welcome to [open an issue](https://github.com/shamilkotta/offpitch_Backend/issues/new/choose) about what you would like to contribute. Enhancements are always encouraged and appreciated.**
 
 ### **All the very best from the community.! 🤝**
