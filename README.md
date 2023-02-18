@@ -23,7 +23,7 @@ Requirements you need to run the software and how to get them.
 3. [Mongodb](https://www.mongodb.com/docs/manual/tutorial/getting-started/)
 4. [Oauth tokens for your email to setup nodemailer](https://www.freecodecamp.org/news/use-nodemailer-to-send-emails-from-your-node-js-server/)
 5. [Razorpay account](https://dashboard.razorpay.com/signup)
-6. [Cloudinary account](https://cloudinary.com/users/register_free)
+6. [Cloudinary account](https://cloudinary.com/users/register_free). 
    ...etc
 
 ### _Installation_
@@ -45,7 +45,7 @@ yarn install
 ```
 
 Then you've to setup env file. <br>
-Create a `.env` file and paste the keys inthe [`sample.env`](/sample.env) and add your values.
+Create a `.env` file and paste the keys inthe [`.sample.env`](/.sample.env) and add your values.
 
 Then start the dev server by executing
 
