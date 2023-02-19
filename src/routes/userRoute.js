@@ -1,15 +1,17 @@
 import express from "express";
 
+import { imageSignatureController } from "../controllers/guestController.js";
+import {
+  getTournamentController,
+  getTournamentsController,
+  putTournamentController,
+} from "../controllers/tournamentController.js";
 import {
   getClubController,
-  imageSignatureController,
   putClubController,
   putOrganizationController,
   postPlayerController,
   getOrganizationController,
-  putTournamentController,
-  getTournamentsController,
-  getTournamentController,
 } from "../controllers/userController.js";
 import processImage from "../middlewares/processImage.js";
 import organizationValidation from "../middlewares/validations/user/organization.js";
