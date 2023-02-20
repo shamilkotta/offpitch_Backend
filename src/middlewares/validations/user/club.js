@@ -1,7 +1,7 @@
 import * as yup from "yup";
 import ErrorResponse from "../../../error/ErrorResponse.js";
 
-const organizationSchema = yup.object().shape({
+const clubSchema = yup.object().shape({
   name: yup
     .string()
     .transform((value) =>
@@ -35,9 +35,9 @@ const organizationSchema = yup.object().shape({
     .required("Cover image can not be empty"),
 });
 
-const organizationValidation = (req, res, next) => {
+const clubValidation = (req, res, next) => {
   const { name, email, phone, description, imageData: profile } = req.body;
-  organizationSchema
+  clubSchema
     .validate(
       { name, email, phone, description, profile },
       { stripUnknown: true, abortEarly: false }
@@ -52,4 +52,4 @@ const organizationValidation = (req, res, next) => {
     });
 };
 
-export default organizationValidation;
+export default clubValidation;
