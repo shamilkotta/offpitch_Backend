@@ -17,8 +17,11 @@ jobs:
         with:
           node-version: 18
 
+      - name: upgrade yarn
+        run: yarn set version berry
+
       - name: install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile
 
       - name: run format
         run: yarn run format
