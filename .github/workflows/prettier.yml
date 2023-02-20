@@ -17,6 +17,12 @@ jobs:
         with:
           node-version: 18
 
+      - name: install yarn
+        run: npm install -g yarn
+
+      - name: upgrade yarn
+        run: npm upgrade -g yarn
+
       - name: install dependencies
         run: yarn install
 
