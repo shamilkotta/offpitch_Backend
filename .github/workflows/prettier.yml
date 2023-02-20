@@ -18,16 +18,13 @@ jobs:
           node-version: 18
 
       - name: install yarn
-        run: npm install -g yarn
-
-      - name: upgrade yarn
-        run: npm upgrade -g yarn
+        run: npm install -g yarn@3.3.1
 
       - name: console yarn version
         run: yarn -v
 
       - name: install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile
 
       - name: run format
         run: yarn run format
