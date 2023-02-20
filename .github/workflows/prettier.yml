@@ -23,6 +23,9 @@ jobs:
       - name: upgrade yarn
         run: npm upgrade -g yarn
 
+      - name: console yarn version
+        run: yarn -v
+
       - name: install dependencies
         run: yarn install
 
