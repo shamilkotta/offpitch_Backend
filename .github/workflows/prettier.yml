@@ -17,6 +17,9 @@ jobs:
         with:
           node-version: 18
 
+      - name: upgrade yarn
+        run: yarn set version berry
+
       - name: console yarn version
         run: yarn -v
 
