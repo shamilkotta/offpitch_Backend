@@ -127,7 +127,7 @@ export const emailVerificationController = async (req, res, next) => {
         email: user.email,
         profile: user.profile_pic,
         club: user.club,
-        organization: user.organization,
+        role: user.role,
         accessToken,
       },
     });
@@ -172,7 +172,7 @@ export const refreshController = async (req, res, next) => {
         email: user.email,
         profile: user.profile_pic,
         club: user.club,
-        organization: user.organization,
+        role: user.role,
         accessToken,
       },
     });
@@ -247,7 +247,7 @@ export const loginController = async (req, res, next) => {
         email: user.email,
         profile: user.profile_pic,
         club: user.club,
-        organization: user.organization,
+        role: user.role,
         accessToken,
       },
     });
