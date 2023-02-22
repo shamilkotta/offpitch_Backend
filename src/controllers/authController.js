@@ -10,6 +10,7 @@ import {
 import User from "../models/user.js";
 import ErrorResponse from "../error/ErrorResponse.js";
 import Verification from "../models/verification.js";
+import Club from "../models/club.js";
 
 export const signupController = async (req, res, next) => {
   const { name, email, password } = req.validData;
@@ -126,7 +127,8 @@ export const emailVerificationController = async (req, res, next) => {
         name: user.name,
         email: user.email,
         profile: user.profile_pic,
-        club: user.club,
+        club: "",
+        clubStatus: "",
         role: user.role,
         accessToken,
       },
@@ -153,8 +155,16 @@ export const refreshController = async (req, res, next) => {
   // find user
   let user;
   try {
-    user = await User.findOne({ email: decode.data.email, authToken: token });
+    user = await User.findOne({
+      email: decode.data.email,
+      authToken: token,
+      status: "active",
+    });
     if (!user) return next(ErrorResponse.forbidden("Invalid credentials"));
+
+    // if user => find clubstatus
+    const result = await Club.findOne({ author: user._id });
+    const clubStatus = result?.status;
 
     const accessToken = jwt.sign(
       { data: { email: user.email, id: user._id } },
@@ -172,6 +182,7 @@ export const refreshController = async (req, res, next) => {
         email: user.email,
         profile: user.profile_pic,
         club: user.club,
+        clubStatus,
         role: user.role,
         accessToken,
       },
@@ -203,7 +214,7 @@ export const loginController = async (req, res, next) => {
   // blocked account
   if (user?.status === "blocked")
     return next(
-      ErrorResponse.forbidden("This account is blocked, contact support center")
+      ErrorResponse.forbidden("Your account is blocked, contact support center")
     );
 
   // email vaerification pending
@@ -223,6 +234,15 @@ export const loginController = async (req, res, next) => {
     } catch (err) {
       return next(err);
     }
+  }
+
+  // find club status
+  let clubStatus = "";
+  try {
+    const result = await Club.findOne({ author: user._id });
+    clubStatus = result?.status;
+  } catch (err) {
+    return next(err);
   }
 
   // generating new tokens and sending to user
@@ -247,6 +267,7 @@ export const loginController = async (req, res, next) => {
         email: user.email,
         profile: user.profile_pic,
         club: user.club,
+        clubStatus,
         role: user.role,
         accessToken,
       },

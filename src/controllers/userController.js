@@ -26,13 +26,24 @@ export const putClubController = async (req, res, next) => {
   if (!result.value._id)
     return next(ErrorResponse.badRequest("Something went wrong"));
 
-  // if updated then send response
-  if (result.lastErrorObject?.updatedExisting)
-    return res.status(200).json({
-      success: true,
-      message: "Club data updated successfully",
-      data: result,
-    });
+  // if updated then change status and send response
+  if (result.lastErrorObject?.updatedExisting) {
+    if (result.value.status === "rejected")
+      try {
+        await Club.findOneAndUpdate(
+          { author: id },
+          { $set: { status: "awaiting" } }
+        );
+
+        return res.status(200).json({
+          success: true,
+          message: "Club data updated successfully",
+          data: result,
+        });
+      } catch (err) {
+        return next(err);
+      }
+  }
 
   // if upserted then save id to user profile
   try {
