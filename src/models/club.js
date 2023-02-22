@@ -56,7 +56,12 @@ const clubSchema = new mongoose.Schema(
     status: {
       type: String,
       required: true,
-      default: "active",
+      default: "awaiting",
+    },
+    comment: {
+      type: String,
+      required: false,
+      default: "",
     },
   },
   { timestamps: true }
