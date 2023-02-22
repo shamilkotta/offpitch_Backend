@@ -40,10 +40,6 @@ const userSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       required: false,
     },
-    organization: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: false,
-    },
     authToken: {
       type: String,
       required: false,

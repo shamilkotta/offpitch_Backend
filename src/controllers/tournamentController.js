@@ -10,12 +10,12 @@ export const putTournamentController = async (req, res, next) => {
   const data = req.validData;
   const { id: userId } = req.userData;
 
-  // find organization
+  // find club
   let user;
   try {
     user = await User.findOne({ _id: userId });
-    if (!user?.organization)
-      return next(ErrorResponse.unauthorized("You don't have a organization"));
+    if (!user?.club)
+      return next(ErrorResponse.unauthorized("You don't have a club"));
   } catch (err) {
     return next(err);
   }
@@ -25,10 +25,10 @@ export const putTournamentController = async (req, res, next) => {
     const response = await Tournament.findOneAndUpdate(
       {
         _id: id,
-        host: user.organization,
+        host: user.club,
         status: { $nin: ["active", "ended"] },
       },
-      { $set: { ...data, host: user.organization } },
+      { $set: { ...data, host: user.club } },
       { upsert: true, new: true, rawResult: true }
     );
 
@@ -52,12 +52,12 @@ export const putTournamentController = async (req, res, next) => {
 export const getTournamentsController = async (req, res, next) => {
   const { id } = req.userData;
 
-  // find org
+  // find club
   let result;
   try {
     result = await User.findOne({ _id: id });
-    if (!result?.organization)
-      return next(ErrorResponse.forbidden("Can't find the organization"));
+    if (!result?.club)
+      return next(ErrorResponse.forbidden("Can't find the club"));
   } catch (err) {
     return next(err);
   }
@@ -67,7 +67,7 @@ export const getTournamentsController = async (req, res, next) => {
     const data = await Tournament.aggregate([
       {
         $match: {
-          host: result.organization,
+          host: result.club,
         },
       },
       {
@@ -107,12 +107,12 @@ export const getTournamentController = async (req, res, next) => {
   const { id: userId } = req.userData;
   if (!id) return next(ErrorResponse.notFound());
 
-  // find organization
+  // find club
   let user;
   try {
     user = await User.findOne({ _id: userId });
-    if (!user?.organization)
-      return next(ErrorResponse.forbidden("You don't have a organization"));
+    if (!user?.club)
+      return next(ErrorResponse.forbidden("You don't have a club"));
   } catch (err) {
     return next(err);
   }
@@ -123,7 +123,7 @@ export const getTournamentController = async (req, res, next) => {
       {
         $match: {
           _id: mongoose.Types.ObjectId(id),
-          host: user.organization,
+          host: user.club,
         },
       },
       {
