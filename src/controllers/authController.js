@@ -126,7 +126,7 @@ export const emailVerificationController = async (req, res, next) => {
       data: {
         name: user.name,
         email: user.email,
-        profile: user.profile_pic,
+        profile: user.profile,
         club: "",
         clubStatus: "",
         role: user.role,
@@ -180,7 +180,7 @@ export const refreshController = async (req, res, next) => {
       data: {
         name: user.name,
         email: user.email,
-        profile: user.profile_pic,
+        profile: user.profile,
         club: user.club,
         clubStatus,
         role: user.role,
@@ -265,7 +265,7 @@ export const loginController = async (req, res, next) => {
       data: {
         name: user.name,
         email: user.email,
-        profile: user.profile_pic,
+        profile: user.profile,
         club: user.club,
         clubStatus,
         role: user.role,

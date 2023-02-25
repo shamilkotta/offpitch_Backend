@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    profile_pic: {
+    profile: {
       type: String,
       required: true,
       default() {
@@ -53,6 +53,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       default: "user",
+    },
+    comment: {
+      type: String,
+      required: false,
+      default: "",
     },
   },
   { timestamps: true }
