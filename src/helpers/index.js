@@ -1,4 +1,3 @@
-/* eslint-disable no-async-promise-executor */
 import crypto from "crypto";
 import { create } from "express-handlebars";
 import jwt from "jsonwebtoken";
@@ -38,76 +37,60 @@ export const sendMail = (toEmail, subject, htmlContent) =>
   });
 
 // sending email verification otp to mail
-export const sendVerificationOtp = (email) =>
-  new Promise(async (resolve, reject) => {
-    // creating token
-    const key = process.env.OTP_TOKEN_SECRET;
-    const token = jwt.sign({ email }, key, { expiresIn: 60 * 12 });
+export const sendVerificationOtp = async (email) => {
+  // creating token
+  const key = process.env.OTP_TOKEN_SECRET;
+  const token = jwt.sign({ email }, key, { expiresIn: 60 * 12 });
 
-    // creating otp and save to db
-    const otp = Math.floor(100000 + Math.random() * 900000);
-    try {
-      await Verification.updateOne({ email }, { otp, token }, { upsert: true });
-    } catch (err) {
-      reject(err);
-    }
+  // creating otp and save to db
+  const otp = Math.floor(100000 + Math.random() * 900000);
+  await Verification.updateOne({ email }, { otp, token }, { upsert: true });
 
-    // converting otp 12334 => "1 2 3 3 4" for sending as user readable
-    const otpString = String(otp)
-      .split("")
-      .reduce((acc, ele) => `${acc} ${ele}`);
+  // converting otp 12334 => "1 2 3 3 4" for sending as user readable
+  const otpString = String(otp)
+    .split("")
+    .reduce((acc, ele) => `${acc} ${ele}`);
 
-    // reading email template and sending email
-    try {
-      const emailTemplatePath = `./src/utils/otp-verification-email.html`;
-      const emailContent = await compileHTMLEmailTemplate(emailTemplatePath, {
-        otp: otpString,
-      });
-
-      // send mail
-      await sendMail(email, "email verification otp", emailContent);
-
-      resolve({
-        success: true,
-        token,
-        message: "Verification mail send successfully",
-      });
-    } catch (err) {
-      reject(err);
-    }
+  // reading email template and sending email
+  const emailTemplatePath = `./src/utils/otp-verification-email.html`;
+  const emailContent = await compileHTMLEmailTemplate(emailTemplatePath, {
+    otp: otpString,
   });
 
-export const authTokens = ({ email, id }) =>
-  new Promise(async (resolve, reject) => {
-    try {
-      const accessToken = jwt.sign(
-        { data: { email, id } },
-        process.env.ACCESS_TOKEN_SECRET,
-        {
-          expiresIn: 60 * 10,
-        }
-      );
-      const refreshToken = jwt.sign(
-        { data: { email, id } },
-        process.env.REFRESH_TOKEN_SECRET,
-        {
-          expiresIn: "7d",
-        }
-      );
+  // send mail
+  await sendMail(email, "email verification otp", emailContent);
 
-      const res = await User.updateOne(
-        { email },
-        { $set: { authToken: refreshToken } }
-      );
+  return {
+    success: true,
+    token,
+    message: "Verification mail send successfully",
+  };
+};
 
-      if (!res.modifiedCount)
-        reject(
-          ErrorResponse.badRequest(
-            "Otp verification failed, try again with new one"
-          )
-        );
-      else resolve({ accessToken, refreshToken });
-    } catch (err) {
-      reject(err);
+export const authTokens = async ({ email, id }) => {
+  const accessToken = jwt.sign(
+    { data: { email, id } },
+    process.env.ACCESS_TOKEN_SECRET,
+    {
+      expiresIn: 60 * 10,
     }
-  });
+  );
+  const refreshToken = jwt.sign(
+    { data: { email, id } },
+    process.env.REFRESH_TOKEN_SECRET,
+    {
+      expiresIn: "7d",
+    }
+  );
+
+  const res = await User.updateOne(
+    { email },
+    { $set: { authToken: refreshToken } }
+  );
+
+  if (!res.modifiedCount)
+    throw ErrorResponse.badRequest(
+      "Otp verification failed, try again with new one"
+    );
+  else return { accessToken, refreshToken };
+};
