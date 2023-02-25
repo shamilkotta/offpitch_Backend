@@ -8,11 +8,15 @@ import "dotenv/config";
 // routes
 import authRoute from "./routes/authRoute.js";
 import userRoute from "./routes/userRoute.js";
+import adminRoute from "./routes/adminRoute.js";
 
 import errorHandler from "./error/errorHandler.js";
 import connectDatbase from "./config/database.js";
 import cors from "./middlewares/cors.js";
-import userAuthorization from "./middlewares/authorization.js";
+import {
+  userAuthorization,
+  adminAuthorization,
+} from "./middlewares/authorization.js";
 
 const app = express();
 
@@ -33,6 +37,7 @@ connectDatbase();
 // api
 app.use("/api/auth", authRoute);
 app.use("/api/user", userAuthorization, userRoute);
+app.use("/api/admin", adminAuthorization, adminRoute);
 
 // 404 routes
 app.use((req, res) => {
