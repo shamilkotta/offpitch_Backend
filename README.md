@@ -41,7 +41,7 @@ Then go to this project directory by running command `cd offpitch_Backend`
 Firstly install the required packages
 
 ```
-yarn install
+yarn install --frozen-lockfile
 ```
 
 Then you've to setup env file. <br>
