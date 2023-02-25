@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 import ErrorResponse from "../error/ErrorResponse.js";
+import { allTournamentsData, getTournamentData } from "../helpers/user.js";
 import Tournament from "../models/tournament.js";
 import User from "../models/user.js";
 
@@ -49,7 +50,7 @@ export const putTournamentController = async (req, res, next) => {
 };
 
 // get all tournament of user
-export const getTournamentsController = async (req, res, next) => {
+export const getUserTournamentsController = async (req, res, next) => {
   const { id } = req.userData;
 
   // find club
@@ -102,7 +103,7 @@ export const getTournamentsController = async (req, res, next) => {
 };
 
 // get single tournament data of user
-export const getTournamentController = async (req, res, next) => {
+export const getUserTournamentController = async (req, res, next) => {
   const { id } = req.params;
   const { id: userId } = req.userData;
   if (!id) return next(ErrorResponse.notFound());
@@ -154,6 +155,53 @@ export const getTournamentController = async (req, res, next) => {
       success: true,
       message: "Found one tournament",
       data: tournament[0],
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+// get all tournaments for guest user
+export const getTournamentsController = async (req, res, next) => {
+  let { page = 1, limit = 10, filter = "" } = req.query;
+  const { search = "", sort = "createdAt,-1" } = req.query;
+  page = parseInt(page, 10);
+  limit = parseInt(limit, 10);
+  if (filter === "all") filter = "";
+  // get all clubs data to display in table
+  try {
+    const data = await allTournamentsData({
+      page,
+      limit,
+      search,
+      sort,
+      filter,
+    });
+    return res.status(200).json({ success: true, data });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+// get tournament data
+export const getTournamentController = async (req, res, next) => {
+  const { id } = req.params;
+  if (!id) return next(ErrorResponse.notFound());
+
+  // find tournament data
+  try {
+    const tournament = await getTournamentData({ id });
+
+    if (!tournament)
+      return res.status(200).json({
+        success: false,
+        message: "Can't find the tournament",
+      });
+
+    return res.status(200).json({
+      success: true,
+      message: "Found one tournament",
+      data: tournament,
     });
   } catch (err) {
     return next(err);

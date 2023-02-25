@@ -9,6 +9,7 @@ import "dotenv/config";
 import authRoute from "./routes/authRoute.js";
 import userRoute from "./routes/userRoute.js";
 import adminRoute from "./routes/adminRoute.js";
+import guestRoute from "./routes/guestRoute.js";
 
 import errorHandler from "./error/errorHandler.js";
 import connectDatbase from "./config/database.js";
@@ -38,6 +39,7 @@ connectDatbase();
 app.use("/api/auth", authRoute);
 app.use("/api/user", userAuthorization, userRoute);
 app.use("/api/admin", adminAuthorization, adminRoute);
+app.use("/api", guestRoute);
 
 // 404 routes
 app.use((req, res) => {
