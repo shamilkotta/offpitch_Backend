@@ -20,10 +20,11 @@ Requirements you need to run the software and how to get them.
 
 1. [Git](https://git-scm.com/downloads)
 2. [NodeJs](https://nodejs.org/en/download)
-3. [Mongodb](https://www.mongodb.com/docs/manual/tutorial/getting-started/)
-4. [Oauth tokens for your email to setup nodemailer](https://www.freecodecamp.org/news/use-nodemailer-to-send-emails-from-your-node-js-server/)
-5. [Razorpay account](https://dashboard.razorpay.com/signup)
-6. [Cloudinary account](https://cloudinary.com/users/register_free).
+3. [yarn](https://yarnpkg.com/getting-started/install)
+4. [Mongodb](https://www.mongodb.com/docs/manual/tutorial/getting-started/)
+5. [Oauth tokens for your email to setup nodemailer](https://www.freecodecamp.org/news/use-nodemailer-to-send-emails-from-your-node-js-server/)
+6. [Razorpay account](https://dashboard.razorpay.com/signup)
+7. [Cloudinary account](https://cloudinary.com/users/register_free).
    ...etc
 
 ### _Installation_
