@@ -1,5 +1,6 @@
 import * as yup from "yup";
 
+import fileUpload from "../../fileUpload.js";
 import ErrorResponse from "../../../error/ErrorResponse.js";
 
 const playerSchema = yup.object().shape({
@@ -14,26 +15,31 @@ const playerSchema = yup.object().shape({
     .date()
     .typeError("Please add valid date of birth")
     .required("Date of birth can not be empty"),
-  profile: yup
-    .string()
-    .trim()
-    .url("Profile image can not be empty")
-    .required("Profile image can not be empty"),
 });
 
 const playerValidation = (req, res, next) => {
-  const { name, date_of_birth: dob, imageData: profile } = req.body;
+  const { name, date_of_birth: dob } = req.body;
   playerSchema
     .validate(
-      { name, date_of_birth: dob, profile },
+      { name, date_of_birth: dob },
       { stripUnknown: true, abortEarly: false }
     )
     .then((data) => {
       req.validData = data;
-      next();
+      if (req.file)
+        fileUpload(req.file)
+          .then((result) => {
+            req.validData.profile = result.secure_url;
+            next();
+          })
+          .catch(next);
+      else if (req.body.profile) {
+        req.validData.profile = req.body.profile;
+        next();
+      } else next(ErrorResponse.badRequest("Profile is required"));
     })
     .catch((err) => {
-      const [validationErr] = err.errors;
+      const [validationErr] = err?.errors || ["Something went wrong"];
       next(ErrorResponse.badRequest(validationErr));
     });
 };
