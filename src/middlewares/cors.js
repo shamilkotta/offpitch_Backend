@@ -5,7 +5,10 @@ function cors(req, res, next) {
     "Origin, X-Requested-With, Content-Type, Authorization, Accept"
   );
   res.header("Access-Control-Allow-Credentials", "true");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+  );
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
