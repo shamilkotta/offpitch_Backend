@@ -1,5 +1,7 @@
 import * as yup from "yup";
+
 import ErrorResponse from "../../../error/ErrorResponse.js";
+import { multipleFileUpload } from "../../fileUpload.js";
 
 const clubSchema = yup.object().shape({
   name: yup
@@ -28,26 +30,30 @@ const clubSchema = yup.object().shape({
     .trim()
     .required("Description can not be empty")
     .min(200, "Too short description"),
-  profile: yup
-    .string()
-    .trim()
-    .url("Cover image can not be empty")
-    .required("Cover image can not be empty"),
 });
 
 const clubValidation = (req, res, next) => {
-  const { name, email, phone, description, imageData: profile } = req.body;
+  const { name, email, phone, description } = req.body;
   clubSchema
     .validate(
-      { name, email, phone, description, profile },
+      { name, email, phone, description },
       { stripUnknown: true, abortEarly: false }
     )
     .then((data) => {
       req.validData = data;
-      next();
+      if (req.files)
+        multipleFileUpload(req.files)
+          .then((result) => {
+            if (result?.profile)
+              req.validData.profile = result.profile.secure_url;
+            if (result?.doc) req.validData.doc = result.doc.secure_url;
+
+            next();
+          })
+          .catch(next);
     })
     .catch((err) => {
-      const [validationErr] = err.errors;
+      const [validationErr] = err?.errors || ["Something went wrong"];
       next(ErrorResponse.badRequest(validationErr));
     });
 };

@@ -1,13 +1,9 @@
 import * as yup from "yup";
+
 import ErrorResponse from "../../../error/ErrorResponse.js";
+import fileUpload from "../../fileUpload.js";
 
 const stepOneSchema = yup.object().shape({
-  cover: yup
-    .string()
-    .typeError("Cover image can not be empty")
-    // .trim()
-    .url("Cover image can not be empty")
-    .required("Cover image can not be empty"),
   title: yup
     .string()
     .trim()
@@ -143,7 +139,8 @@ const currentSchema = (step = 0) => {
 
 const tournamentValidation = (req, res, next) => {
   const formData = req.body;
-  formData.cover = req.body.imageData;
+  const step = parseInt(req.body?.step, 10);
+  formData.step = step;
   const schema = currentSchema(formData?.step);
 
   schema
@@ -151,10 +148,33 @@ const tournamentValidation = (req, res, next) => {
     .then((data) => {
       req.validData = data;
       req.validData.status = formData.step > 3 ? "active" : "draft";
-      next();
+
+      // for first step
+      if (formData.step === 1) {
+        if (req.file)
+          fileUpload(req.file)
+            .then((result) => {
+              req.validData.cover = result.secure_url;
+              next();
+            })
+            .catch(next);
+        else if (req.body.cover) {
+          req.validData.cover = req.body.cover;
+          next();
+        } else next(ErrorResponse.badRequest("Cover image is required"));
+
+        // for last step
+      } else if (formData.step === 4) {
+        if (req.body.cover) {
+          req.validData.cover = req.body.cover;
+          next();
+        } else {
+          next(ErrorResponse.badRequest("Cover image is required"));
+        }
+      } else next();
     })
     .catch((err) => {
-      const [validationErr] = err.errors;
+      const [validationErr] = err?.errors || ["Something went wrong"];
       next(ErrorResponse.badRequest(validationErr));
     });
 };
