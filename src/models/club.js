@@ -50,6 +50,10 @@ const clubSchema = new mongoose.Schema(
         }),
       ],
     },
+    doc: {
+      type: String,
+      required: true,
+    },
     followers: {
       type: [mongoose.Schema.Types.ObjectId],
     },
