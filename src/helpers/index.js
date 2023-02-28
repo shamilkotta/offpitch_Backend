@@ -1,7 +1,9 @@
 import crypto from "crypto";
 import { create } from "express-handlebars";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
+import Tournament from "../models/tournament.js";
 import transporter from "../config/nodemailer.js";
 import ErrorResponse from "../error/ErrorResponse.js";
 import User from "../models/user.js";
@@ -93,4 +95,282 @@ export const authTokens = async ({ email, id }) => {
       "Otp verification failed, try again with new one"
     );
   else return { accessToken, refreshToken };
+};
+
+// all tournaments
+export const allTournamentsData = async ({
+  page = 1,
+  limit = 25,
+  search = "",
+  sort = "createdAt,-1",
+  filter = "",
+}) => {
+  const currentPage = page - 1;
+  const sortOptions = sort.split(",");
+
+  const sortBy = {};
+  if (sortOptions[1] && sortOptions[1] === "1") sortBy[sortOptions[0]] = 1;
+  else sortBy[sortOptions[0]] = -1;
+
+  const reslut = await Tournament.aggregate([
+    {
+      $match: {
+        status: { $ne: "draft" },
+      },
+    },
+    // filter
+    {
+      $match: {
+        status: { $regex: filter, $options: "i" },
+      },
+    },
+
+    {
+      $project: {
+        cover: 1,
+        title: 1,
+        host: 1,
+        short_description: 1,
+        location: 1,
+        start_date: 1,
+        status: 1,
+      },
+    },
+    {
+      $lookup: {
+        from: "clubs",
+        foreignField: "_id",
+        localField: "host",
+        pipeline: [
+          {
+            $project: {
+              name: 1,
+              email: 1,
+              phone: 1,
+            },
+          },
+        ],
+        as: "host",
+      },
+    },
+    {
+      $unwind: "$host",
+    },
+    // search
+    {
+      $match: {
+        $or: [
+          { title: { $regex: search, $options: "i" } },
+          { short_description: { $regex: search, $options: "i" } },
+          { location: { $regex: search, $options: "i" } },
+          { tournament_type: { $regex: search, $options: "i" } },
+          { status: { $regex: search, $options: "i" } },
+          { "host.name": { $regex: search, $options: "i" } },
+        ],
+      },
+    },
+    {
+      $addFields: {
+        start_date: {
+          $concat: [
+            { $substr: [{ $dayOfMonth: "$start_date" }, 0, 2] },
+            " ",
+            {
+              $switch: {
+                branches: [
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 1] },
+                    then: "Jan",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 2] },
+                    then: "Feb",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 3] },
+                    then: "Mar",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 4] },
+                    then: "Apr",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 5] },
+                    then: "May",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 6] },
+                    then: "Jun",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 7] },
+                    then: "Jul",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 8] },
+                    then: "Aug",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 9] },
+                    then: "Sep",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 10] },
+                    then: "Oct",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 11] },
+                    then: "Nov",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 12] },
+                    then: "Dec",
+                  },
+                ],
+                default: "",
+              },
+            },
+            " ",
+            { $substr: [{ $year: "$start_date" }, 0, 4] },
+          ],
+        },
+      },
+    },
+    // sort
+    {
+      $sort: sortBy,
+    },
+    // transforming results
+    {
+      $facet: {
+        allTournaments: [
+          {
+            $skip: currentPage * limit,
+          },
+          {
+            $limit: limit,
+          },
+        ],
+        total: [{ $count: "total" }],
+      },
+    },
+    {
+      $unwind: {
+        path: "$total",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $addFields: {
+        total: "$total.total",
+        page: currentPage + 1,
+        limit,
+      },
+    },
+  ]);
+  return reslut[0];
+};
+
+export const getTournamentData = async ({ id }) => {
+  const tournament = await Tournament.aggregate([
+    {
+      $match: {
+        _id: mongoose.Types.ObjectId(id),
+      },
+    },
+    {
+      $addFields: {
+        start_date: {
+          $concat: [
+            { $substr: [{ $dayOfMonth: "$start_date" }, 0, 2] },
+            " ",
+            {
+              $switch: {
+                branches: [
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 1] },
+                    then: "January",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 2] },
+                    then: "February",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 3] },
+                    then: "March",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 4] },
+                    then: "April",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 5] },
+                    then: "May",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 6] },
+                    then: "June",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 7] },
+                    then: "July",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 8] },
+                    then: "August",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 9] },
+                    then: "September",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 10] },
+                    then: "October",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 11] },
+                    then: "November",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 12] },
+                    then: "December",
+                  },
+                ],
+                default: "",
+              },
+            },
+            " ",
+            { $substr: [{ $year: "$start_date" }, 0, 4] },
+          ],
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: "clubs",
+        foreignField: "_id",
+        localField: "host",
+        pipeline: [
+          {
+            $project: {
+              name: 1,
+              profile: 1,
+              email: 1,
+              phone: 1,
+            },
+          },
+        ],
+        as: "host",
+      },
+    },
+    {
+      $unwind: "$host",
+    },
+    {
+      $project: {
+        _id: 0,
+      },
+    },
+  ]);
+  return tournament[0];
 };
