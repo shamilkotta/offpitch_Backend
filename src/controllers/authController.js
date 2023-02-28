@@ -11,6 +11,7 @@ import User from "../models/user.js";
 import ErrorResponse from "../error/ErrorResponse.js";
 import Verification from "../models/verification.js";
 import Club from "../models/club.js";
+import Admin from "../models/admin.js";
 
 export const signupController = async (req, res, next) => {
   const { name, email, password } = req.validData;
@@ -462,4 +463,53 @@ export const resetPasswordController = async (req, res, next) => {
     success: true,
     message: "Password updated successfully",
   });
+};
+
+export const adminLoginController = async (req, res, next) => {
+  const { email, password } = req.validData;
+
+  // find admin
+  let admin;
+  try {
+    admin = await Admin.findOne({ email });
+    // invalid email
+    if (!admin)
+      return next(ErrorResponse.badRequest("Invalid email or passwrod"));
+
+    const match = await bcrypt.compare(password, admin.password);
+    // invalid password
+    if (!match)
+      return next(ErrorResponse.badRequest("Invalid email or passwrod"));
+  } catch (err) {
+    return next(err);
+  }
+
+  // generating new tokens and sending to user
+  try {
+    const { accessToken, refreshToken } = await authTokens({
+      email: admin.email,
+      id: admin._id,
+    });
+
+    res.cookie("authToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Email verified successfully",
+      data: {
+        name: admin.name,
+        email: admin.email,
+        profile: admin.profile,
+        role: admin.role,
+        accessToken,
+      },
+    });
+  } catch (err) {
+    return next(err);
+  }
 };
