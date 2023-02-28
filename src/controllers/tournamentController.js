@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 import ErrorResponse from "../error/ErrorResponse.js";
-import { allTournamentsData, getTournamentData } from "../helpers/user.js";
+import { allTournamentsData, getTournamentData } from "../helpers/index.js";
 import Tournament from "../models/tournament.js";
 import User from "../models/user.js";
 
@@ -163,7 +163,7 @@ export const getUserTournamentController = async (req, res, next) => {
 
 // get all tournaments for guest user
 export const getTournamentsController = async (req, res, next) => {
-  let { page = 1, limit = 10, filter = "" } = req.query;
+  let { page = 1, limit = 25, filter = "" } = req.query;
   const { search = "", sort = "createdAt,-1" } = req.query;
   page = parseInt(page, 10);
   limit = parseInt(limit, 10);
