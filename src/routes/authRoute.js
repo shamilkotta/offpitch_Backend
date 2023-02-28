@@ -1,6 +1,7 @@
 import express from "express";
 
 import {
+  adminLoginController,
   emailVerificationController,
   forgotPasswordController,
   loginController,
@@ -40,5 +41,7 @@ router.post(
   resetPasswordValidation,
   resetPasswordController
 );
+
+router.post("/admin/login", loginValidation, adminLoginController);
 
 export default router;
