@@ -40,6 +40,15 @@ const tournamentSchema = new mongoose.Schema(
       required: true,
       default: 0,
     },
+    registration_date: {
+      type: Date,
+      required: true,
+    },
+    min_no_players: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
     max_no_players: {
       type: Number,
       required: true,
