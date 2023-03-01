@@ -136,6 +136,12 @@ export const getUserTournamentController = async (req, res, next) => {
               date: "$start_date",
             },
           },
+          registration_date: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$registration_date",
+            },
+          },
         },
       },
       {
