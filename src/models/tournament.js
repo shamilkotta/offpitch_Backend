@@ -78,6 +78,11 @@ const tournamentSchema = new mongoose.Schema(
           required: true,
           default: 0,
         },
+        total: {
+          type: Number,
+          required: true,
+          default: 0,
+        },
       },
       season_ticket: {
         is: {
@@ -86,6 +91,11 @@ const tournamentSchema = new mongoose.Schema(
           default: false,
         },
         amount: {
+          type: Number,
+          required: true,
+          default: 0,
+        },
+        total: {
           type: Number,
           required: true,
           default: 0,

@@ -106,6 +106,16 @@ const stepThreeSchema = yup.object().shape({
                   .required("Enter a valid ticket amount")
                   .min(1, "Enter a valid ticket amount"),
             }),
+          total: yup
+            .number("Enter total tickets count")
+            .typeError("Enter total tickets count")
+            .when("is", {
+              is: true,
+              then: (schema) =>
+                schema
+                  .required("Enter total tickets count")
+                  .min(1, "Enter total tickets count"),
+            }),
         })
         .typeError("Choose a valid ticket type"),
       season_ticket: yup
@@ -123,6 +133,16 @@ const stepThreeSchema = yup.object().shape({
                 schema
                   .required("Enter a valid ticket amount")
                   .min(1, "Enter a valid ticket amount"),
+            }),
+          total: yup
+            .number("Enter total tickets count")
+            .typeError("Enter total tickets count")
+            .when("is", {
+              is: true,
+              then: (schema) =>
+                schema
+                  .required("Enter total tickets count")
+                  .min(1, "Enter total tickets count"),
             }),
         })
         .typeError("Choose a valid ticket type"),
