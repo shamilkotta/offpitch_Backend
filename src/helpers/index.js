@@ -343,6 +343,12 @@ export const getTournamentData = async ({ id }) => {
             { $substr: [{ $year: "$start_date" }, 0, 4] },
           ],
         },
+        registration_date: {
+          $dateToString: {
+            format: "%d/%m/%Y",
+            date: "$registration_date",
+          },
+        },
       },
     },
     {
