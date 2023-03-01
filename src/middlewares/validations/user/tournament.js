@@ -8,12 +8,12 @@ const stepOneSchema = yup.object().shape({
     .string()
     .trim()
     .required("Title can not be empty")
-    .min(10, "Too short title"),
+    .min(10, "Too short title, Atleast 10 characters"),
   short_description: yup
     .string()
     .trim()
     .required("Description can not be empty")
-    .min(200, "Too short description"),
+    .min(200, "Description should be 200 characters long"),
   start_date: yup
     .date()
     .typeError("Please add valid starting date")
@@ -24,7 +24,7 @@ const stepOneSchema = yup.object().shape({
     .string()
     .trim()
     .required("About section can not be empty")
-    .min(500, "Too short about"),
+    .min(500, "About should be 500 characters long"),
 });
 
 const stepTwoSchema = yup.object().shape({
@@ -32,8 +32,7 @@ const stepTwoSchema = yup.object().shape({
     .string()
     .trim()
     .required("Instructions can not be empty")
-    .min(500, "Too short Instruction")
-    .max(1000, "Too long Instruction"),
+    .min(500, "Instruction should be 500 characters long"),
   no_teams: yup
     .number("Enter no of teams that can be registerd")
     .typeError("Enter no of teams that can be registerd")
@@ -49,7 +48,7 @@ const stepTwoSchema = yup.object().shape({
     .number("Enter valid no of min players")
     .typeError("Enter valid no of min players")
     .required("Min no of players can not be empty")
-    .min(3, "3-a-side the minimum match")
+    .min(3, "3-a-side is the minimum match")
     .max(11, "Allowed only upto 11-a-side match"),
   max_no_players: yup
     .number("Enter valid no of players")
@@ -57,10 +56,14 @@ const stepTwoSchema = yup.object().shape({
     .required("No of players can not be empty")
     .min(3, "3-a-side the minimum match")
     .max(18, "Allowed only max upto 18 players")
-    // eslint-disable-next-line func-names
-    .test("Valid no", "Can't be less than minimum", function (value) {
-      return value >= this.parent.min_no_players;
-    }),
+    .test(
+      "Valid no",
+      "Maximum no. can't be less than min no. players",
+      // eslint-disable-next-line func-names
+      function (value) {
+        return value >= this.parent.min_no_players;
+      }
+    ),
   registration_fee: yup
     .object()
     .shape({
