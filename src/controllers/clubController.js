@@ -94,7 +94,7 @@ export const postPlayerController = async (req, res, next) => {
   let result;
   try {
     result = await Club.findOneAndUpdate(
-      { author: id },
+      { author: id, status: "active" },
       { $push: { players: playerData } },
       { new: true, rawResult: true }
     );
@@ -107,7 +107,7 @@ export const postPlayerController = async (req, res, next) => {
       success: true,
       message: "New player added successfully",
     });
-  return next(ErrorResponse.badRequest("Can't find your club, login again"));
+  return next(ErrorResponse.badRequest("Can't find your club"));
 };
 
 // get all clubs
