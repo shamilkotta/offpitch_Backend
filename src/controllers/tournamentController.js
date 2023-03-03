@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 import ErrorResponse from "../error/ErrorResponse.js";
 import { allTournamentsData, getTournamentData } from "../helpers/index.js";
+import { checkRegistered } from "../helpers/user.js";
 import Tournament from "../models/tournament.js";
 import User from "../models/user.js";
 
@@ -195,15 +196,28 @@ export const getTournamentController = async (req, res, next) => {
   if (!id) return next(ErrorResponse.notFound());
 
   // find tournament data
+  let tournament;
   try {
-    const tournament = await getTournamentData({ id });
+    tournament = await getTournamentData({ id });
 
     if (!tournament)
       return res.status(200).json({
         success: false,
         message: "Can't find the tournament",
       });
+  } catch (err) {
+    return next(err);
+  }
 
+  // fetch is registered
+  try {
+    if (req?.userData?.id) {
+      const isRegistered = await checkRegistered({
+        userId: req.userData.id,
+        id,
+      });
+      tournament.isRegistered = isRegistered;
+    }
     return res.status(200).json({
       success: true,
       message: "Found one tournament",
