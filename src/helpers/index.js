@@ -372,11 +372,6 @@ export const getTournamentData = async ({ id }) => {
     {
       $unwind: "$host",
     },
-    {
-      $project: {
-        _id: 0,
-      },
-    },
   ]);
   return tournament[0];
 };
