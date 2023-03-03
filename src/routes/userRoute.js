@@ -9,6 +9,7 @@ import {
   getClubController,
   putClubController,
   postPlayerController,
+  getPlayersController,
 } from "../controllers/clubController.js";
 import clubValidation from "../middlewares/validations/user/club.js";
 import playerValidation from "../middlewares/validations/user/player.js";
@@ -25,6 +26,9 @@ router.get("/club", getClubController);
 
 // create player in club
 router.post("/player", parseProfile, playerValidation, postPlayerController);
+
+// get user club players
+router.get("/players", getPlayersController);
 
 // create tournament
 router.put(

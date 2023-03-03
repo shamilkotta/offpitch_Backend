@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 import ErrorResponse from "../error/ErrorResponse.js";
 import { allClubsData } from "../helpers/admin.js";
-import { getClubData } from "../helpers/user.js";
+import { getClubData, getUserPlayers } from "../helpers/user.js";
 import Club from "../models/club.js";
 import User from "../models/user.js";
 
@@ -149,5 +149,16 @@ export const patchClubController = async (req, res, next) => {
     return next(ErrorResponse.badRequest("Invalid credentials"));
   } catch (err) {
     return next(err);
+  }
+};
+
+// get user players
+export const getPlayersController = async (req, res, next) => {
+  const { id } = req.userData;
+  try {
+    const result = await getUserPlayers({ id });
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
   }
 };
