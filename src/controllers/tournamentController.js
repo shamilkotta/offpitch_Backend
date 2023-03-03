@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import ErrorResponse from "../error/ErrorResponse.js";
 import { allTournamentsData, getTournamentData } from "../helpers/index.js";
 import { checkRegistered } from "../helpers/user.js";
+import Club from "../models/club.js";
 import Tournament from "../models/tournament.js";
 import User from "../models/user.js";
 
@@ -223,6 +224,79 @@ export const getTournamentController = async (req, res, next) => {
       message: "Found one tournament",
       data: tournament,
     });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+// register controller
+export const tournamentRegisterController = async (req, res, next) => {
+  const { id } = req.params;
+  const { players } = req.body;
+
+  if (!players) return next(ErrorResponse.badRequest("Please select players"));
+
+  // check is club is active
+  let club;
+  try {
+    club = await Club.findOne({ author: req.userData.id, status: "active" });
+    if (!club)
+      return next(ErrorResponse.unauthorized("You don't have a active club"));
+  } catch (err) {
+    return next(err);
+  }
+
+  // check registered
+  try {
+    const isRegistered = await checkRegistered({ userId: req.userData.id, id });
+    if (isRegistered)
+      return next(ErrorResponse.badRequest("Your are already registered"));
+  } catch (err) {
+    return next(err);
+  }
+
+  // validate players
+  try {
+    const {
+      min_no_players: minPlayer,
+      registration_date: lastDate,
+      max_no_players: maxPlayer,
+      registration_status: status,
+    } = await getTournamentData({ id });
+
+    if (players.length < minPlayer || players.length > maxPlayer)
+      return next(
+        ErrorResponse.badRequest("Please select valid number of players")
+      );
+
+    if (lastDate < new Date()) {
+      return next(ErrorResponse.badRequest("Registration closed"));
+    }
+
+    if (!status)
+      return next(
+        ErrorResponse.badRequest("Sorry, registration is already closed")
+      );
+  } catch (err) {
+    return next(err);
+  }
+
+  // register
+  try {
+    const data = { club: club._id, name: club.name, players: [...players] };
+
+    const result = await Tournament.updateOne(
+      { _id: id },
+      { $push: { teams: data } }
+    );
+
+    if (result.modifiedCount)
+      return res.status(200).json({
+        success: true,
+        message: "Your registration is successfull",
+      });
+
+    return next(ErrorResponse.internalError("Something went wrong"));
   } catch (err) {
     return next(err);
   }
