@@ -1,4 +1,5 @@
 import Club from "../models/club.js";
+import Tournament from "../models/tournament.js";
 
 export const getClubData = async (filter) => {
   const result = await Club.aggregate([
@@ -51,5 +52,25 @@ export const getClubData = async (filter) => {
   return result[0];
 };
 
-// for avoiding lint error
-export const test = "";
+export const getUserPlayers = async ({ id }) => {
+  const players = await Club.findOne(
+    { author: id, status: "active" },
+    { players: 1 }
+  );
+  if (!players._id) return { success: false, message: "Don't have a club" };
+  return { success: true, data: players?.players };
+};
+
+export const checkRegistered = async ({ userId, id }) => {
+  const club = await Club.findOne({ author: userId }, { _id: 1 });
+  if (!club) return false;
+  const result = await Tournament.findOne({
+    _id: id,
+    teams: {
+      $elemMatch: {
+        club: club._id,
+      },
+    },
+  });
+  return Boolean(result);
+};
