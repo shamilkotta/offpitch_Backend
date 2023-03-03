@@ -42,3 +42,22 @@ export const adminAuthorization = async (req, res, next) => {
   req.userData = decode.data;
   return next();
 };
+
+export const userCheck = async (req, res, next) => {
+  const token = req.headers?.authorization?.split(" ")[1];
+  if (!token) return next();
+
+  let decode;
+  try {
+    decode = await jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+  } catch (err) {
+    if (err.name === "TokenExpiredError") {
+      decode = jwt.decode(token);
+      req.userData = decode.data;
+    }
+    return next();
+  }
+
+  req.userData = decode.data;
+  return next();
+};

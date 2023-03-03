@@ -17,6 +17,7 @@ import cors from "./middlewares/cors.js";
 import {
   userAuthorization,
   adminAuthorization,
+  userCheck,
 } from "./middlewares/authorization.js";
 
 const app = express();
@@ -39,7 +40,7 @@ connectDatbase();
 app.use("/api/auth", authRoute);
 app.use("/api/user", userAuthorization, userRoute);
 app.use("/api/admin", adminAuthorization, adminRoute);
-app.use("/api", guestRoute);
+app.use("/api", userCheck, guestRoute);
 
 // 404 routes
 app.use((req, res) => {
