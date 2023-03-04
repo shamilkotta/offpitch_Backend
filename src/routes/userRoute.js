@@ -15,7 +15,7 @@ import {
 import clubValidation from "../middlewares/validations/user/club.js";
 import playerValidation from "../middlewares/validations/user/player.js";
 import tournamentValidation from "../middlewares/validations/user/tournament.js";
-import { parseCover, parseDoc, parseProfile } from "../middlewares/multer.js";
+import { parseCover, parseDoc } from "../middlewares/multer.js";
 
 const router = express.Router();
 
@@ -26,7 +26,7 @@ router.put("/club", parseDoc, clubValidation, putClubController);
 router.get("/club", getClubController);
 
 // create player in club
-router.post("/player", parseProfile, playerValidation, postPlayerController);
+router.post("/player", parseDoc, playerValidation, postPlayerController);
 
 // get user club players
 router.get("/players", getPlayersController);

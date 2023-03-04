@@ -1,6 +1,6 @@
 import * as yup from "yup";
 
-import fileUpload from "../../fileUpload.js";
+import { multipleFileUpload } from "../../fileUpload.js";
 import ErrorResponse from "../../../error/ErrorResponse.js";
 
 const playerSchema = yup.object().shape({
@@ -26,15 +26,18 @@ const playerValidation = (req, res, next) => {
     )
     .then((data) => {
       req.validData = data;
-      if (req.file)
-        fileUpload(req.file)
+      if (req.files)
+        multipleFileUpload(req.files)
           .then((result) => {
-            req.validData.profile = result.secure_url;
+            req.validData.profile = result.profile.secure_url;
+            req.validData.doc = result.doc.secure_url;
+
             next();
           })
           .catch(next);
       else if (req.body.profile) {
         req.validData.profile = req.body.profile;
+        req.validData.doc = req.body.doc;
         next();
       } else next(ErrorResponse.badRequest("Profile is required"));
     })
