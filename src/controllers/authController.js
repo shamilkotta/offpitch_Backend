@@ -489,6 +489,7 @@ export const adminLoginController = async (req, res, next) => {
     const { accessToken, refreshToken } = await authTokens({
       email: admin.email,
       id: admin._id,
+      role: "admin",
     });
 
     res.cookie("authToken", refreshToken, {

@@ -8,6 +8,7 @@ import transporter from "../config/nodemailer.js";
 import ErrorResponse from "../error/ErrorResponse.js";
 import User from "../models/user.js";
 import Verification from "../models/verification.js";
+import Admin from "../models/admin.js";
 
 // random profile pic genarator to use as default
 export const profilePicGenerator = (email) => {
@@ -69,7 +70,11 @@ export const sendVerificationOtp = async (email) => {
   };
 };
 
-export const authTokens = async ({ email, id }) => {
+export const authTokens = async ({ email, id, role = "user" }) => {
+  let model;
+  if (role === "admin") model = Admin;
+  else model = User;
+
   const accessToken = jwt.sign(
     { data: { email, id } },
     process.env.ACCESS_TOKEN_SECRET,
@@ -85,15 +90,13 @@ export const authTokens = async ({ email, id }) => {
     }
   );
 
-  const res = await User.updateOne(
+  const res = await model.updateOne(
     { email },
     { $set: { authToken: refreshToken } }
   );
 
   if (!res.modifiedCount)
-    throw ErrorResponse.badRequest(
-      "Otp verification failed, try again with new one"
-    );
+    throw ErrorResponse.badRequest("Something went wrong, try again");
   else return { accessToken, refreshToken };
 };
 
