@@ -42,6 +42,10 @@ const clubSchema = new mongoose.Schema(
             type: String,
             required: true,
           },
+          doc: {
+            type: String,
+            required: true,
+          },
           status: {
             type: String,
             required: true,
