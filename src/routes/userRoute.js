@@ -4,6 +4,7 @@ import {
   getUserTournamentController,
   getUserTournamentsController,
   putTournamentController,
+  tournamentRegisterController,
 } from "../controllers/tournamentController.js";
 import {
   getClubController,
@@ -43,5 +44,8 @@ router.get("/tournaments", getUserTournamentsController);
 
 // get a tournament
 router.get("/tournament/:id", getUserTournamentController);
+
+// register for tournament
+router.post("/tournament/:id/register", tournamentRegisterController);
 
 export default router;

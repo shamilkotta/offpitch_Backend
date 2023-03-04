@@ -54,6 +54,11 @@ const tournamentSchema = new mongoose.Schema(
       required: true,
       default: 0,
     },
+    registration_status: {
+      type: Boolean,
+      required: true,
+      default: true,
+    },
     registration_fee: {
       is: {
         type: Boolean,
@@ -107,6 +112,24 @@ const tournamentSchema = new mongoose.Schema(
       required: true,
       default: "t1",
     },
+    teams: [
+      {
+        club: {
+          type: mongoose.Schema.Types.ObjectId,
+          required: true,
+        },
+        name: {
+          type: String,
+          required: true,
+        },
+        players: [
+          {
+            type: String,
+            required: true,
+          },
+        ],
+      },
+    ],
     status: {
       type: String,
       required: true,
