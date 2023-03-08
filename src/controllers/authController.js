@@ -262,7 +262,7 @@ export const loginController = async (req, res, next) => {
 
     return res.status(200).json({
       success: true,
-      message: "Email verified successfully",
+      message: "Logged in successfully",
       data: {
         name: user.name,
         email: user.email,
