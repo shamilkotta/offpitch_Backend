@@ -57,7 +57,7 @@ export const getUserPlayers = async ({ id }) => {
     { author: id, status: "active" },
     { players: 1 }
   );
-  if (!players._id) return { success: false, message: "Don't have a club" };
+  if (!players?._id) return { success: false, message: "Don't have a club" };
   return { success: true, data: players?.players };
 };
 
