@@ -128,6 +128,10 @@ const tournamentSchema = new mongoose.Schema(
             required: true,
           },
         ],
+        status: {
+          type: String,
+          required: true,
+        },
       },
     ],
     status: {

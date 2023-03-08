@@ -1,8 +1,10 @@
 import express from "express";
 
 import {
+  getTournamentInvoice,
   getUserTournamentController,
   getUserTournamentsController,
+  postRegistrationFee,
   putTournamentController,
   tournamentRegisterController,
 } from "../controllers/tournamentController.js";
@@ -46,6 +48,13 @@ router.get("/tournaments", getUserTournamentsController);
 router.get("/tournament/:id", getUserTournamentController);
 
 // register for tournament
-router.post("/tournament/:id/register", tournamentRegisterController);
+router.post(
+  "/tournament/:id/register",
+  tournamentRegisterController,
+  getTournamentInvoice
+);
+
+// process registration payment
+router.post("/tournament/:id/fee", postRegistrationFee);
 
 export default router;
