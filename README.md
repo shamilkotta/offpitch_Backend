@@ -6,7 +6,9 @@
 
 ## **About**
 
-offpitch is a webplatform for managing football tournaments. Here users can host tournaments and manage the teams, matches, table, points ...etc. And for the teams they can create a club page, add players and then they can register for the tournaments. Also the tournament host can sell the ticket to the tournament through this platform
+A full-stack web platform that enables users to manage football tournaments, including hosting, team and match management, and ticket sales. I incorporated various technologies, such as Redux, Tailwind, Razorpay, and Cloudinary, to enhance the platform's functionality and improve the user experience. I designed OffPitch to support multiple tournament formats, including league, knockout, double league, and group stage-knockout, to offer users maximum flexibility. 
+
+Overall, OffPitch is a powerful and user-friendly platform that makes managing football tournaments simple and efficient, providing users with the flexibility and functionality they need to create successful and enjoyable events.
 
 <!-- ![image](https://user-images.githubusercontent.com/64640025/211061221-cdd72a97-87b0-4ae9-a66e-310be5d07250.png) -->
 
