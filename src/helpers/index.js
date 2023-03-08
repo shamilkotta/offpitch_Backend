@@ -378,3 +378,12 @@ export const getTournamentData = async ({ id }) => {
   ]);
   return tournament[0];
 };
+
+export const verifyPayment = async (paymentId, orderId, signature) => {
+  const generatedSignature = crypto
+    .createHmac("SHA256", process.env.RAZORPAY_KEY_SECRET)
+    .update(`${orderId}|${paymentId}`)
+    .digest("hex");
+
+  return generatedSignature === signature;
+};

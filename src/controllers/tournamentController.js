@@ -1,11 +1,17 @@
 import mongoose from "mongoose";
 
 import ErrorResponse from "../error/ErrorResponse.js";
-import { allTournamentsData, getTournamentData } from "../helpers/index.js";
+import {
+  allTournamentsData,
+  getTournamentData,
+  verifyPayment,
+} from "../helpers/index.js";
 import { checkRegistered } from "../helpers/user.js";
 import Club from "../models/club.js";
 import Tournament from "../models/tournament.js";
 import User from "../models/user.js";
+import generateInvoice from "../config/razorpay.js";
+import Transaction from "../models/transaction.js";
 
 // create and update tournament
 export const putTournamentController = async (req, res, next) => {
@@ -231,8 +237,8 @@ export const getTournamentController = async (req, res, next) => {
 
 // register controller
 export const tournamentRegisterController = async (req, res, next) => {
-  const { id } = req.params;
   const { players } = req.body;
+  const { id: tournament } = req.params;
 
   if (!players) return next(ErrorResponse.badRequest("Please select players"));
 
@@ -248,7 +254,10 @@ export const tournamentRegisterController = async (req, res, next) => {
 
   // check registered
   try {
-    const isRegistered = await checkRegistered({ userId: req.userData.id, id });
+    const isRegistered = await checkRegistered({
+      userId: req.userData.id,
+      id: tournament,
+    });
     if (isRegistered)
       return next(ErrorResponse.badRequest("Your are already registered"));
   } catch (err) {
@@ -262,7 +271,7 @@ export const tournamentRegisterController = async (req, res, next) => {
       registration_date: lastDate,
       max_no_players: maxPlayer,
       registration_status: status,
-    } = await getTournamentData({ id });
+    } = await getTournamentData({ id: tournament });
 
     if (players.length < minPlayer || players.length > maxPlayer)
       return next(
@@ -283,21 +292,179 @@ export const tournamentRegisterController = async (req, res, next) => {
 
   // register
   try {
-    const data = { club: club._id, name: club.name, players: [...players] };
+    const data = {
+      club: club._id,
+      name: club.name,
+      players: [...players],
+      status: "pending",
+    };
 
     const result = await Tournament.updateOne(
-      { _id: id },
+      { _id: tournament },
       { $push: { teams: data } }
     );
 
-    if (result.modifiedCount)
-      return res.status(200).json({
-        success: true,
-        message: "Your registration is successfull",
-      });
+    if (!result.modifiedCount)
+      return next(ErrorResponse.internalError("Something went wrong"));
 
-    return next(ErrorResponse.internalError("Something went wrong"));
+    req.club = club;
+    return next();
   } catch (err) {
     return next(err);
   }
+};
+
+export const getTournamentInvoice = async (req, res, next) => {
+  const { id: tournament } = req.params;
+  const { id: userId } = req.userData;
+  const { _id: club } = req.club;
+
+  // fetch tournament
+  let registerFee;
+  try {
+    registerFee = await Tournament.findOne(
+      { _id: tournament },
+      { registration_fee: 1 }
+    );
+
+    if (!registerFee?._id)
+      return next(ErrorResponse.badRequest("Partial completion"));
+  } catch (err) {
+    return next(ErrorResponse.internalError("Partial completion"));
+  }
+
+  try {
+    if (!registerFee?.registration_fee?.is) {
+      const result = await Tournament.updateOne(
+        { _id: tournament, "teams.club": club },
+        { $set: { "teams.$.status": "paid" } }
+      );
+
+      if (!result.modifiedCount)
+        return next(ErrorResponse.internalError("Partial completion"));
+
+      return res.status(200).json({
+        success: true,
+        message: "Your registration is successfull",
+        data: {
+          amount: 0,
+        },
+      });
+    }
+  } catch (err) {
+    return next(ErrorResponse.internalError("Partial completion"));
+  }
+
+  // generate invoice
+  let invoiceData;
+  try {
+    invoiceData = await generateInvoice(registerFee?.registration_fee?.amount);
+  } catch (err) {
+    return next(ErrorResponse.internalError("Partial completion"));
+  }
+
+  // sending response
+  try {
+    if (invoiceData?.success) {
+      // saving transaction
+      const newTransc = new Transaction({
+        author: userId,
+        amount: registerFee?.registration_fee?.amount,
+        order_id: invoiceData?.order?.id,
+      });
+      await newTransc.save();
+      return res.status(200).json({
+        success: true,
+        message: "Invoice generated successfully",
+        data: {
+          amount: registerFee?.registration_fee?.amount,
+          order_id: invoiceData?.order.id,
+        },
+      });
+    }
+  } catch (err) {
+    return next(ErrorResponse.internalError("Partial completion"));
+  }
+
+  return next(ErrorResponse.internalError("Partial completion"));
+};
+
+export const postRegistrationFee = async (req, res, next) => {
+  const { id: tournament } = req.params;
+  const { id: userId } = req.userData;
+  const {
+    razorpay_payment_id: paymentId,
+    razorpay_order_id: inOrderId,
+    razorpay_signature: signature,
+  } = req.body;
+
+  // fetch club
+  let club;
+  try {
+    club = await Club.findOne({
+      author: userId,
+    });
+
+    if (!club)
+      return next(
+        ErrorResponse.badRequest("Can't fetch your club details, try again")
+      );
+  } catch (err) {
+    return next(err);
+  }
+
+  // fetch invoice
+  let transaction;
+  try {
+    transaction = await Transaction.findOne({ order_id: inOrderId });
+
+    if (!transaction)
+      return next(ErrorResponse.forbidden("Verification failed"));
+  } catch (err) {
+    return next(err);
+  }
+
+  // verify payment
+  try {
+    const result = await verifyPayment(
+      paymentId,
+      transaction.order_id,
+      signature
+    );
+
+    if (!result) return next(ErrorResponse.forbidden("Verification failed"));
+  } catch (err) {
+    return next(ErrorResponse.internalError("Verification failed"));
+  }
+
+  // update registration data
+  try {
+    const result = await Tournament.updateOne(
+      { _id: tournament, "teams.club": club },
+      { $set: { "teams.$.status": "paid" } }
+    );
+
+    if (!result.modifiedCount)
+      return next(ErrorResponse.internalError("Something went wrong"));
+  } catch (err) {
+    return next(err);
+  }
+
+  // update payment status
+  try {
+    const result = await Transaction.updateOne(
+      { order_id: inOrderId },
+      { $set: { status: true } }
+    );
+
+    if (!result.modifiedCount)
+      return next(ErrorResponse.internalError("Something went wrong"));
+  } catch (err) {
+    return next(err);
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Registration successful",
+  });
 };
