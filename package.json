@@ -36,6 +36,7 @@
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.1",
+    "razorpay": "^2.8.6",
     "yup": "^0.32.11"
   },
   "version": "0.2.2"
