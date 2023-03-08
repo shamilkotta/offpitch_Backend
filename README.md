@@ -6,7 +6,7 @@
 
 ## **About**
 
-A full-stack web platform that enables users to manage football tournaments, including hosting, team and match management, and ticket sales. I incorporated various technologies, such as Redux, Tailwind, Razorpay, and Cloudinary, to enhance the platform's functionality and improve the user experience. I designed OffPitch to support multiple tournament formats, including league, knockout, double league, and group stage-knockout, to offer users maximum flexibility. 
+A full-stack web platform that enables users to manage football tournaments, including hosting, team and match management, and ticket sales. I incorporated various technologies, such as Redux, Tailwind, Razorpay, and Cloudinary, to enhance the platform's functionality and improve the user experience. I designed OffPitch to support multiple tournament formats, including league, knockout, double league, and group stage-knockout, to offer users maximum flexibility.
 
 Overall, OffPitch is a powerful and user-friendly platform that makes managing football tournaments simple and efficient, providing users with the flexibility and functionality they need to create successful and enjoyable events.
 
