@@ -156,7 +156,11 @@ export const refreshController = async (req, res, next) => {
   // find user
   let user;
   try {
-    user = await User.findOne({
+    let model;
+    if (decode?.data?.email === process.env.ADMIN_EMAIL) model = Admin;
+    else model = User;
+
+    user = await model.findOne({
       email: decode.data.email,
       authToken: token,
       status: "active",
