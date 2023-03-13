@@ -1,7 +1,11 @@
 import mongoose from "mongoose";
 
 const transactionSchema = new mongoose.Schema({
-  author: {
+  from: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+  },
+  to: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
   },

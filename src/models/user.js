@@ -49,6 +49,11 @@ const userSchema = new mongoose.Schema(
       required: false,
       default: "active",
     },
+    wallet: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
     role: {
       type: String,
       required: true,

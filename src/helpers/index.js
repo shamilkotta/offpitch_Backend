@@ -387,3 +387,39 @@ export const verifyPayment = async (paymentId, orderId, signature) => {
 
   return generatedSignature === signature;
 };
+
+export const findTournamentAuthor = async (tournamentId) => {
+  const result = await Tournament.aggregate([
+    {
+      $match: {
+        _id: mongoose.Types.ObjectId(tournamentId),
+      },
+    },
+    { $project: { host: 1 } },
+    {
+      $lookup: {
+        from: "users",
+        localField: "host",
+        foreignField: "club",
+        pipeline: [
+          {
+            $project: {
+              _id: 1,
+            },
+          },
+        ],
+        as: "author",
+      },
+    },
+    {
+      $unwind: "$author",
+    },
+    {
+      $addFields: {
+        author: "$author._id",
+      },
+    },
+  ]);
+
+  return result[0]?.author;
+};

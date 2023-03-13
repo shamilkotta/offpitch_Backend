@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import ErrorResponse from "../error/ErrorResponse.js";
 import {
   allTournamentsData,
+  findTournamentAuthor,
   getTournamentData,
   verifyPayment,
 } from "../helpers/index.js";
@@ -368,7 +369,8 @@ export const getTournamentInvoice = async (req, res, next) => {
     if (invoiceData?.success) {
       // saving transaction
       const newTransc = new Transaction({
-        author: userId,
+        from: userId,
+        to: tournament,
         amount: registerFee?.registration_fee?.amount,
         order_id: invoiceData?.order?.id,
       });
@@ -451,14 +453,32 @@ export const postRegistrationFee = async (req, res, next) => {
   }
 
   // update payment status
+  let transactionData;
   try {
-    const result = await Transaction.updateOne(
+    transactionData = await Transaction.findOneAndUpdate(
       { order_id: inOrderId },
-      { $set: { status: true } }
+      { $set: { status: true } },
+      { new: true, rawResult: true }
     );
 
-    if (!result.modifiedCount)
+    if (!transactionData?.lastErrorObject?.updatedExisting)
       return next(ErrorResponse.internalError("Something went wrong"));
+  } catch (err) {
+    return next(err);
+  }
+
+  // find tournament host
+  let tournamentHost;
+  try {
+    tournamentHost = await findTournamentAuthor(tournament);
+  } catch (err) {
+    return next(err);
+  }
+
+  // update host wallet
+  try {
+    const amount = transactionData?.value?.amount || 0;
+    await User.updateOne({ _id: tournamentHost }, { $inc: { wallet: amount } });
   } catch (err) {
     return next(err);
   }
