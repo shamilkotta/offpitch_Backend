@@ -54,7 +54,7 @@ export const putClubController = async (req, res, next) => {
     if (response.modifiedCount)
       return res
         .status(200)
-        .json({ success: true, message: "New club created successfully" });
+        .json({ success: true, message: "Club data saved successfully" });
 
     return next(ErrorResponse.badRequest("Something went wrong"));
   } catch (err) {
