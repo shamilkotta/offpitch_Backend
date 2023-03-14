@@ -127,7 +127,6 @@ export const allTournamentsData = async ({
         status: { $regex: filter, $options: "i" },
       },
     },
-
     {
       $project: {
         cover: 1,
@@ -283,6 +282,19 @@ export const getTournamentData = async ({ id }) => {
     },
     {
       $addFields: {
+        teams: {
+          $filter: {
+            input: "$teams",
+            as: "team",
+            cond: {
+              $eq: ["$$team.status", "paid"],
+            },
+          },
+        },
+      },
+    },
+    {
+      $addFields: {
         start_date: {
           $concat: [
             { $substr: [{ $dayOfMonth: "$start_date" }, 0, 2] },
@@ -346,10 +358,39 @@ export const getTournamentData = async ({ id }) => {
             { $substr: [{ $year: "$start_date" }, 0, 4] },
           ],
         },
-        registration_date: {
+        "registration.status": {
+          $cond: {
+            if: {
+              $eq: ["$registration.status", "closed"],
+            },
+            then: "closed",
+            else: {
+              $cond: {
+                if: {
+                  $or: [
+                    {
+                      $lte: ["$registration.last_date", new Date()],
+                    },
+                    {
+                      $lte: [
+                        "$no_teams",
+                        {
+                          $size: "$teams",
+                        },
+                      ],
+                    },
+                  ],
+                },
+                then: "closed",
+                else: "$registration.status",
+              },
+            },
+          },
+        },
+        "registration.last_date": {
           $dateToString: {
-            format: "%d/%m/%Y",
-            date: "$registration_date",
+            format: "%m/%d/%Y",
+            date: "$registration.last_date",
           },
         },
       },
