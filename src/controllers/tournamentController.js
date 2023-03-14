@@ -84,7 +84,7 @@ export const getUserTournamentsController = async (req, res, next) => {
         $addFields: {
           start_date: {
             $dateToString: {
-              format: "%d/%m/%Y",
+              format: "%m/%d/%Y",
               date: "$start_date",
             },
           },
@@ -226,6 +226,17 @@ export const getTournamentController = async (req, res, next) => {
       });
       tournament.isRegistered = isRegistered;
     }
+  } catch (err) {
+    return next(err);
+  }
+
+  // check user is host
+  try {
+    if (req?.userData?.id) {
+      const author = await findTournamentAuthor(id);
+      tournament.isHost = req.userData.id === author.toString();
+    }
+
     return res.status(200).json({
       success: true,
       message: "Found one tournament",
@@ -269,9 +280,8 @@ export const tournamentRegisterController = async (req, res, next) => {
   try {
     const {
       min_no_players: minPlayer,
-      registration_date: lastDate,
+      registration,
       max_no_players: maxPlayer,
-      registration_status: status,
     } = await getTournamentData({ id: tournament });
 
     if (players.length < minPlayer || players.length > maxPlayer)
@@ -279,11 +289,11 @@ export const tournamentRegisterController = async (req, res, next) => {
         ErrorResponse.badRequest("Please select valid number of players")
       );
 
-    if (lastDate < new Date()) {
+    if (registration.last_date < new Date()) {
       return next(ErrorResponse.badRequest("Registration closed"));
     }
 
-    if (!status)
+    if (registration.status !== "open")
       return next(
         ErrorResponse.badRequest("Sorry, registration is already closed")
       );
@@ -296,6 +306,7 @@ export const tournamentRegisterController = async (req, res, next) => {
     const data = {
       club: club._id,
       name: club.name,
+      profile: club.profile,
       players: [...players],
       status: "pending",
     };
@@ -325,7 +336,7 @@ export const getTournamentInvoice = async (req, res, next) => {
   try {
     registerFee = await Tournament.findOne(
       { _id: tournament },
-      { registration_fee: 1 }
+      { registration: 1 }
     );
 
     if (!registerFee?._id)
@@ -335,7 +346,7 @@ export const getTournamentInvoice = async (req, res, next) => {
   }
 
   try {
-    if (!registerFee?.registration_fee?.is) {
+    if (!registerFee?.registration?.fee?.is) {
       const result = await Tournament.updateOne(
         { _id: tournament, "teams.club": club },
         { $set: { "teams.$.status": "paid" } }
@@ -359,7 +370,7 @@ export const getTournamentInvoice = async (req, res, next) => {
   // generate invoice
   let invoiceData;
   try {
-    invoiceData = await generateInvoice(registerFee?.registration_fee?.amount);
+    invoiceData = await generateInvoice(registerFee?.registration?.fee?.amount);
   } catch (err) {
     return next(ErrorResponse.internalError("Partial completion"));
   }
@@ -371,7 +382,7 @@ export const getTournamentInvoice = async (req, res, next) => {
       const newTransc = new Transaction({
         from: userId,
         to: tournament,
-        amount: registerFee?.registration_fee?.amount,
+        amount: registerFee?.registration?.fee?.amount,
         order_id: invoiceData?.order?.id,
       });
       await newTransc.save();
@@ -379,7 +390,7 @@ export const getTournamentInvoice = async (req, res, next) => {
         success: true,
         message: "Invoice generated successfully",
         data: {
-          amount: registerFee?.registration_fee?.amount,
+          amount: registerFee?.registration?.fee?.amount,
           order_id: invoiceData?.order.id,
         },
       });

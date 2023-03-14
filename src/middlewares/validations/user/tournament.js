@@ -39,11 +39,33 @@ const stepTwoSchema = yup.object().shape({
     .required("No of teams can not be empty")
     .min(4, "Atleast 4 teams needed")
     .max(64, "Can only register upto 64 teams max"),
-  registration_date: yup
-    .date()
-    .typeError("Please add last date for registration")
-    .min(new Date(), "Enter a last date for registration")
-    .required("Last date can not be empty"),
+  registration: yup.object().shape({
+    last_date: yup
+      .date()
+      .typeError("Please add last date for registration")
+      .min(new Date(), "Enter a last date for registration")
+      .required("Last date can not be empty"),
+    fee: yup
+      .object()
+      .shape({
+        is: yup
+          .boolean("Choose valid registration option")
+          .typeError("Choose valid registration option")
+          .required("Choose valid registration option")
+          .default(false),
+        amount: yup
+          .number("Enter a valid registration amount")
+          .typeError("Enter a valid registration amount")
+          .when("is", {
+            is: true,
+            then: (schema) =>
+              schema
+                .required("Enter a valid registration amount")
+                .min(1, "Enter a valid registration amount"),
+          }),
+      })
+      .typeError("Choose a valid registraion type"),
+  }),
   min_no_players: yup
     .number("Enter valid no of min players")
     .typeError("Enter valid no of min players")
@@ -64,26 +86,6 @@ const stepTwoSchema = yup.object().shape({
         return value >= this.parent.min_no_players;
       }
     ),
-  registration_fee: yup
-    .object()
-    .shape({
-      is: yup
-        .boolean("Choose valid registration option")
-        .typeError("Choose valid registration option")
-        .required("Choose valid registration option")
-        .default(false),
-      amount: yup
-        .number("Enter a valid registration amount")
-        .typeError("Enter a valid registration amount")
-        .when("is", {
-          is: true,
-          then: (schema) =>
-            schema
-              .required("Enter a valid registration amount")
-              .min(1, "Enter a valid registration amount"),
-        }),
-    })
-    .typeError("Choose a valid registraion type"),
 });
 
 const stepThreeSchema = yup.object().shape({
@@ -186,6 +188,9 @@ const tournamentValidation = (req, res, next) => {
     .then((data) => {
       req.validData = data;
       req.validData.status = formData.step > 3 ? "active" : "draft";
+      if (formData.step === 2)
+        req.validData.registration.status = "not started";
+      else if (formData.step > 3) req.validData.registration.status = "open";
 
       // for first step
       if (formData.step === 1) {

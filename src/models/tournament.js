@@ -40,10 +40,6 @@ const tournamentSchema = new mongoose.Schema(
       required: true,
       default: 0,
     },
-    registration_date: {
-      type: Date,
-      required: true,
-    },
     min_no_players: {
       type: Number,
       required: true,
@@ -54,21 +50,27 @@ const tournamentSchema = new mongoose.Schema(
       required: true,
       default: 0,
     },
-    registration_status: {
-      type: Boolean,
-      required: true,
-      default: true,
-    },
-    registration_fee: {
-      is: {
-        type: Boolean,
+    registration: {
+      last_date: {
+        type: Date,
         required: true,
-        default: false,
       },
-      amount: {
-        type: Number,
+      fee: {
+        is: {
+          type: Boolean,
+          required: true,
+          default: false,
+        },
+        amount: {
+          type: Number,
+          required: true,
+          default: 0,
+        },
+      },
+      status: {
+        type: String,
         required: true,
-        default: 0,
+        default: "open",
       },
     },
     tickets: {
@@ -119,6 +121,10 @@ const tournamentSchema = new mongoose.Schema(
           required: true,
         },
         name: {
+          type: String,
+          required: true,
+        },
+        profile: {
           type: String,
           required: true,
         },
