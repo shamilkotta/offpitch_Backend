@@ -130,7 +130,7 @@ const tournamentSchema = new mongoose.Schema(
         },
         players: [
           {
-            type: String,
+            type: mongoose.Schema.Types.ObjectId,
             required: true,
           },
         ],
@@ -138,6 +138,79 @@ const tournamentSchema = new mongoose.Schema(
           type: String,
           required: true,
         },
+      },
+    ],
+    groups: [
+      {
+        name: {
+          type: String,
+          required: true,
+        },
+        no_teams: {
+          type: Number,
+          requried: true,
+          default: 0,
+        },
+        teams: [
+          {
+            club: {
+              type: mongoose.Schema.Types.ObjectId,
+              required: true,
+            },
+            name: {
+              type: String,
+              required: true,
+            },
+            profile: {
+              type: String,
+              required: true,
+            },
+            c_position: {
+              type: Number,
+              required: true,
+            },
+            mp: {
+              type: Number,
+              required: true,
+              default: 0,
+            },
+            w: {
+              type: Number,
+              required: true,
+              default: 0,
+            },
+            d: {
+              type: Number,
+              required: true,
+              default: 0,
+            },
+            l: {
+              type: Number,
+              required: true,
+              default: 0,
+            },
+            gf: {
+              type: Number,
+              required: true,
+              default: 0,
+            },
+            ga: {
+              type: Number,
+              required: true,
+              default: 0,
+            },
+            gd: {
+              type: Number,
+              required: true,
+              default: 0,
+            },
+            pts: {
+              type: Number,
+              required: true,
+              default: 0,
+            },
+          },
+        ],
       },
     ],
     status: {
