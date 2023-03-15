@@ -18,6 +18,7 @@ import clubValidation from "../middlewares/validations/user/club.js";
 import playerValidation from "../middlewares/validations/user/player.js";
 import tournamentValidation from "../middlewares/validations/user/tournament.js";
 import { parseCover, parseDoc } from "../middlewares/multer.js";
+import { scheduelMatchesController } from "../controllers/matchController.js";
 
 const router = express.Router();
 
@@ -56,5 +57,8 @@ router.post(
 
 // process registration payment
 router.post("/tournament/:id/fee", postRegistrationFee);
+
+// generate fixture or schedule matches
+router.get("/tournament/:id/schedule", scheduelMatchesController);
 
 export default router;
