@@ -361,9 +361,9 @@ export const getTournamentData = async ({ id }) => {
         "registration.status": {
           $cond: {
             if: {
-              $eq: ["$registration.status", "closed"],
+              $ne: ["$registration.status", "open"],
             },
-            then: "closed",
+            then: "$registration.status",
             else: {
               $cond: {
                 if: {
@@ -415,6 +415,17 @@ export const getTournamentData = async ({ id }) => {
     },
     {
       $unwind: "$host",
+    },
+    {
+      $lookup: {
+        from: "matches",
+        foreignField: "host",
+        localField: "_id",
+        as: "matches",
+      },
+    },
+    {
+      $unwind: { path: "$matches", preserveNullAndEmptyArrays: true },
     },
   ]);
   return tournament[0];
