@@ -183,6 +183,7 @@ export const getTournamentsController = async (req, res, next) => {
   page = parseInt(page, 10);
   limit = parseInt(limit, 10);
   if (filter === "all") filter = "";
+
   // get all clubs data to display in table
   try {
     const data = await allTournamentsData({
@@ -329,7 +330,6 @@ export const tournamentRegisterController = async (req, res, next) => {
 
 export const getTournamentInvoice = async (req, res, next) => {
   const { id: tournament } = req.params;
-  const { id: userId } = req.userData;
   const { _id: club } = req.club;
 
   // fetch tournament
@@ -337,7 +337,7 @@ export const getTournamentInvoice = async (req, res, next) => {
   try {
     registerFee = await Tournament.findOne(
       { _id: tournament },
-      { registration: 1 }
+      { registration: 1, host: 1 }
     );
 
     if (!registerFee?._id)
@@ -381,8 +381,8 @@ export const getTournamentInvoice = async (req, res, next) => {
     if (invoiceData?.success) {
       // saving transaction
       const newTransc = new Transaction({
-        from: userId,
-        to: tournament,
+        from: club,
+        to: registerFee.host,
         amount: registerFee?.registration?.fee?.amount,
         order_id: invoiceData?.order?.id,
       });
