@@ -1,5 +1,6 @@
 import ErrorResponse from "../error/ErrorResponse.js";
 import { allUsersData } from "../helpers/admin.js";
+import { getWatchlist } from "../helpers/user.js";
 import User from "../models/user.js";
 
 // get all users
@@ -39,6 +40,22 @@ export const patchUserController = async (req, res, next) => {
       });
 
     return next(ErrorResponse.badRequest("Invalid credentials"));
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const getUserWatchlist = async (req, res, next) => {
+  const { id: userId } = req.userData;
+  const { limit = 10 } = req.query;
+
+  // fetch all watchlist
+  try {
+    const data = await getWatchlist({ userId, limit });
+    return res.status(200).json({
+      success: true,
+      data,
+    });
   } catch (err) {
     return next(err);
   }
