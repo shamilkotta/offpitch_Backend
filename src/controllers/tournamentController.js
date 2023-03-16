@@ -88,6 +88,20 @@ export const getUserTournamentsController = async (req, res, next) => {
               date: "$start_date",
             },
           },
+          teams_count: {
+            $size: {
+              $ifNull: [
+                {
+                  $filter: {
+                    input: "$teams",
+                    as: "team",
+                    cond: { $eq: ["$$team.status", "paid"] },
+                  },
+                },
+                [],
+              ],
+            },
+          },
         },
       },
       {
@@ -98,6 +112,7 @@ export const getUserTournamentsController = async (req, res, next) => {
           location: 1,
           start_date: 1,
           status: 1,
+          teams_count: 1,
         },
       },
     ]);
