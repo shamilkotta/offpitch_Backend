@@ -20,7 +20,10 @@ import playerValidation from "../middlewares/validations/user/player.js";
 import tournamentValidation from "../middlewares/validations/user/tournament.js";
 import { parseCover, parseDoc } from "../middlewares/multer.js";
 import { scheduelMatchesController } from "../controllers/matchController.js";
-import { getUserWatchlist } from "../controllers/userController.js";
+import {
+  getUserTransactions,
+  getUserWatchlist,
+} from "../controllers/userController.js";
 
 const router = express.Router();
 
@@ -68,5 +71,8 @@ router.get("/tournament/:id/schedule", scheduelMatchesController);
 
 // get watchlist
 router.get("/watchlist", getUserWatchlist);
+
+// get transactions
+router.get("/transactions", getUserTransactions);
 
 export default router;

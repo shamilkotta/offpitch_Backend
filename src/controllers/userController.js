@@ -1,7 +1,9 @@
+import mongoose from "mongoose";
 import ErrorResponse from "../error/ErrorResponse.js";
 import { allUsersData } from "../helpers/admin.js";
-import { getWatchlist } from "../helpers/user.js";
+import { getTransactions, getWatchlist } from "../helpers/user.js";
 import User from "../models/user.js";
+import Club from "../models/club.js";
 
 // get all users
 export const getUsersController = async (req, res, next) => {
@@ -52,6 +54,33 @@ export const getUserWatchlist = async (req, res, next) => {
   // fetch all watchlist
   try {
     const data = await getWatchlist({ userId, limit });
+    return res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const getUserTransactions = async (req, res, next) => {
+  const { id: userId } = req.userData;
+  const { limit = 10 } = req.query;
+
+  // find club
+  let club;
+  try {
+    club = await Club.findOne({ author: mongoose.Types.ObjectId(userId) });
+
+    if (!club._id)
+      return next(ErrorResponse.badRequest("Can't fetch club data"));
+  } catch (err) {
+    return next(err);
+  }
+
+  // fetch transactions
+  try {
+    const data = await getTransactions({ from: club._id, limit });
     return res.status(200).json({
       success: true,
       data,

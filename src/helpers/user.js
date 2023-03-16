@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import Club from "../models/club.js";
 import Tournament from "../models/tournament.js";
+import Transaction from "../models/transaction.js";
 import User from "../models/user.js";
 
 export const getClubData = async (filter) => {
@@ -75,6 +76,117 @@ export const checkRegistered = async ({ userId, id }) => {
     },
   });
   return Boolean(result);
+};
+
+export const getTransactions = async ({ from, limit }) => {
+  const result = await Transaction.aggregate([
+    {
+      $match: {
+        $or: [{ from }, { to: from }],
+        status: true,
+      },
+    },
+    {
+      $lookup: {
+        from: "clubs",
+        localField: "from",
+        foreignField: "_id",
+        as: "fromClub",
+      },
+    },
+    {
+      $lookup: {
+        from: "clubs",
+        localField: "to",
+        foreignField: "_id",
+        as: "toClub",
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        amount: 1,
+        from: { $arrayElemAt: ["$fromClub.name", 0] },
+        to: { $arrayElemAt: ["$toClub.name", 0] },
+        createdAt: 1,
+      },
+    },
+    {
+      $addFields: {
+        transaction_date: {
+          $concat: [
+            { $substr: [{ $dayOfMonth: "$createdAt" }, 0, 2] },
+            " ",
+            {
+              $switch: {
+                branches: [
+                  {
+                    case: { $eq: [{ $month: "$createdAt" }, 1] },
+                    then: "Jan",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$createdAt" }, 2] },
+                    then: "Feb",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$createdAt" }, 3] },
+                    then: "Mar",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$createdAt" }, 4] },
+                    then: "Apr",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$createdAt" }, 5] },
+                    then: "May",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$createdAt" }, 6] },
+                    then: "Jun",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$createdAt" }, 7] },
+                    then: "Jul",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$createdAt" }, 8] },
+                    then: "Aug",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$createdAt" }, 9] },
+                    then: "Sep",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$createdAt" }, 10] },
+                    then: "Oct",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$createdAt" }, 11] },
+                    then: "Nov",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$createdAt" }, 12] },
+                    then: "Dec",
+                  },
+                ],
+                default: "",
+              },
+            },
+            " ",
+            { $substr: [{ $year: "$createdAt" }, 0, 4] },
+          ],
+        },
+      },
+    },
+    {
+      $sort: { createdAt: -1 },
+    },
+    {
+      $limit: parseInt(limit, 10),
+    },
+  ]);
+
+  return result;
 };
 
 export const getWatchlist = async ({ userId, limit }) => {
