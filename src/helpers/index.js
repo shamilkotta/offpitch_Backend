@@ -107,6 +107,7 @@ export const allTournamentsData = async ({
   search = "",
   sort = "createdAt,-1",
   filter = "",
+  userId,
 }) => {
   const currentPage = page - 1;
   const sortOptions = sort.split(",");
@@ -115,7 +116,7 @@ export const allTournamentsData = async ({
   if (sortOptions[1] && sortOptions[1] === "1") sortBy[sortOptions[0]] = 1;
   else sortBy[sortOptions[0]] = -1;
 
-  const reslut = await Tournament.aggregate([
+  const result = await Tournament.aggregate([
     {
       $match: {
         status: { $ne: "draft" },
@@ -135,6 +136,37 @@ export const allTournamentsData = async ({
         short_description: 1,
         location: 1,
         start_date: 1,
+        teams_count: {
+          $size: {
+            $ifNull: [
+              {
+                $filter: {
+                  input: "$teams",
+                  as: "team",
+                  cond: { $eq: ["$$team.status", "paid"] },
+                },
+              },
+              [],
+            ],
+          },
+        },
+        teams: {
+          $slice: [
+            {
+              $ifNull: [
+                {
+                  $filter: {
+                    input: "$teams",
+                    as: "team",
+                    cond: { $eq: ["$$team.status", "paid"] },
+                  },
+                },
+                [],
+              ],
+            },
+            -3,
+          ],
+        },
         status: 1,
       },
     },
@@ -238,6 +270,37 @@ export const allTournamentsData = async ({
         },
       },
     },
+    {
+      $lookup: {
+        from: "users",
+        as: "user",
+        pipeline: [
+          {
+            $match: {
+              _id: mongoose.Types.ObjectId(userId),
+            },
+          },
+          {
+            $project: {
+              watchlist: 1,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $unwind: {
+        path: "$user",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $addFields: {
+        isSaved: {
+          $in: ["$_id", { $ifNull: ["$user.watchlist", []] }],
+        },
+      },
+    },
     // sort
     {
       $sort: sortBy,
@@ -270,7 +333,7 @@ export const allTournamentsData = async ({
       },
     },
   ]);
-  return reslut[0];
+  return result[0];
 };
 
 export const getTournamentData = async ({ id }) => {

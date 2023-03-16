@@ -191,6 +191,7 @@ export const getTournamentsController = async (req, res, next) => {
       search,
       sort,
       filter,
+      userId: req?.userData?.id,
     });
     return res.status(200).json({ success: true, data });
   } catch (err) {
@@ -497,5 +498,27 @@ export const postRegistrationFee = async (req, res, next) => {
   return res.status(200).json({
     success: true,
     message: "Registration successful",
+  });
+};
+
+export const saveToWatchlistController = async (req, res, next) => {
+  const { id: userId } = req.userData;
+  const { id: tournamentId } = req.params;
+  // saving to watchlist
+  try {
+    const result = await User.updateOne(
+      { _id: userId },
+      { $addToSet: { watchlist: mongoose.Types.ObjectId(tournamentId) } }
+    );
+
+    if (!result.modifiedCount)
+      return next(ErrorResponse.badRequest("Can't add to watchlist"));
+  } catch (err) {
+    return next(err);
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Added to wathclist",
   });
 };

@@ -6,6 +6,7 @@ import {
   getUserTournamentsController,
   postRegistrationFee,
   putTournamentController,
+  saveToWatchlistController,
   tournamentRegisterController,
 } from "../controllers/tournamentController.js";
 import {
@@ -44,6 +45,9 @@ router.put(
 
 // get all tournaments
 router.get("/tournaments", getUserTournamentsController);
+
+// save to watchlist
+router.get("/tournament/:id/save", saveToWatchlistController);
 
 // get a tournament
 router.get("/tournament/:id", getUserTournamentController);
