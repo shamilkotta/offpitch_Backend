@@ -21,6 +21,7 @@ import tournamentValidation from "../middlewares/validations/user/tournament.js"
 import { parseCover, parseDoc } from "../middlewares/multer.js";
 import { scheduelMatchesController } from "../controllers/matchController.js";
 import {
+  getUserProfile,
   getUserTransactions,
   getUserWatchlist,
 } from "../controllers/userController.js";
@@ -74,5 +75,8 @@ router.get("/watchlist", getUserWatchlist);
 
 // get transactions
 router.get("/transactions", getUserTransactions);
+
+// get profile
+router.get("/profile", getUserProfile);
 
 export default router;

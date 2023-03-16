@@ -306,3 +306,60 @@ export const getWatchlist = async ({ userId, limit }) => {
 
   return result;
 };
+
+export const getProfile = async ({ userId }) => {
+  const data = await User.aggregate([
+    {
+      $match: {
+        _id: mongoose.Types.ObjectId(userId),
+      },
+    },
+    {
+      $project: {
+        authToken: 0,
+        createdAt: 0,
+        updatedAt: 0,
+        role: 0,
+        email_verification: 0,
+        watchlist: 0,
+        password: 0,
+      },
+    },
+    {
+      $lookup: {
+        from: "clubs",
+        localField: "_id",
+        foreignField: "author",
+        pipeline: [
+          {
+            $project: {
+              name: 1,
+              profile: 1,
+              followers: 1,
+              players: 1,
+              status: 1,
+            },
+          },
+          {
+            $addFields: {
+              followers: {
+                $size: "$followers",
+              },
+              players: {
+                $size: "$players",
+              },
+            },
+          },
+        ],
+        as: "club",
+      },
+    },
+    {
+      $unwind: {
+        path: "$club",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+  ]);
+  return data[0];
+};

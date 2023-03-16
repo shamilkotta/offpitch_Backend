@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import ErrorResponse from "../error/ErrorResponse.js";
 import { allUsersData } from "../helpers/admin.js";
-import { getTransactions, getWatchlist } from "../helpers/user.js";
+import { getProfile, getTransactions, getWatchlist } from "../helpers/user.js";
 import User from "../models/user.js";
 import Club from "../models/club.js";
 
@@ -81,6 +81,21 @@ export const getUserTransactions = async (req, res, next) => {
   // fetch transactions
   try {
     const data = await getTransactions({ from: club._id, limit });
+    return res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const getUserProfile = async (req, res, next) => {
+  const { id: userId } = req.userData;
+
+  try {
+    const data = await getProfile({ userId });
+
     return res.status(200).json({
       success: true,
       data,
