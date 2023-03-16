@@ -186,7 +186,7 @@ export const refreshController = async (req, res, next) => {
         name: user.name,
         email: user.email,
         profile: user.profile,
-        club: user.club,
+        club: result?._id || "",
         clubStatus,
         role: user.role,
         accessToken,
@@ -242,10 +242,10 @@ export const loginController = async (req, res, next) => {
   }
 
   // find club status
-  let clubStatus = "";
+  let club;
   try {
-    const result = await Club.findOne({ author: user._id });
-    clubStatus = result?.status;
+    club = await Club.findOne({ author: user._id });
+    // clubStatus = result?.status;
   } catch (err) {
     return next(err);
   }
@@ -271,8 +271,8 @@ export const loginController = async (req, res, next) => {
         name: user.name,
         email: user.email,
         profile: user.profile,
-        club: user.club,
-        clubStatus,
+        club: club?._id || "",
+        clubStatus: club?.status || "",
         role: user.role,
         accessToken,
       },
