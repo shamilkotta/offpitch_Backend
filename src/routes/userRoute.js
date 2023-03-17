@@ -1,6 +1,7 @@
 import express from "express";
 
 import {
+  getRegisteredTournaments,
   getTournamentInvoice,
   getUserTournamentController,
   getUserTournamentsController,
@@ -50,6 +51,9 @@ router.put(
 
 // get all tournaments
 router.get("/tournaments", getUserTournamentsController);
+
+// get registered tournaments
+router.get("/tournaments/registered", getRegisteredTournaments);
 
 // save to watchlist
 router.get("/tournament/:id/save", saveToWatchlistController);

@@ -13,6 +13,7 @@ import Tournament from "../models/tournament.js";
 import User from "../models/user.js";
 import generateInvoice from "../config/razorpay.js";
 import Transaction from "../models/transaction.js";
+import { getRegistered } from "../helpers/tournament.js";
 
 // create and update tournament
 export const putTournamentController = async (req, res, next) => {
@@ -536,4 +537,28 @@ export const saveToWatchlistController = async (req, res, next) => {
     success: true,
     message: "Added to wathclist",
   });
+};
+
+export const getRegisteredTournaments = async (req, res, next) => {
+  const { id: userId } = req.userData;
+
+  // fetch club
+  let club;
+  try {
+    club = await Club.findOne({ author: userId });
+
+    if (!club._id) return next(ErrorResponse.badRequest("Can't find the club"));
+  } catch (err) {
+    return next(err);
+  }
+
+  try {
+    const result = await getRegistered({ clubId: club._id });
+    return res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (err) {
+    return next(err);
+  }
 };

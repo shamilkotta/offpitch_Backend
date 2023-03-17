@@ -262,3 +262,168 @@ export const scheduleTournament = async ({ id: tournamentId, teams }) => {
     message: "Tournament scheduled successfully",
   };
 };
+
+export const getRegistered = async ({ clubId }) => {
+  const data = await Tournament.aggregate([
+    {
+      $match: {
+        "teams.club": clubId,
+      },
+    },
+    {
+      $project: {
+        cover: 1,
+        location: 1,
+        registration: 1,
+        start_date: 1,
+        status: 1,
+        teams: 1,
+        title: 1,
+      },
+    },
+    {
+      $unwind: "$teams",
+    },
+    {
+      $match: {
+        "teams.club": clubId,
+      },
+    },
+    {
+      $addFields: {
+        start_date: {
+          $concat: [
+            { $substr: [{ $dayOfMonth: "$start_date" }, 0, 2] },
+            " ",
+            {
+              $switch: {
+                branches: [
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 1] },
+                    then: "Jan",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 2] },
+                    then: "Feb",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 3] },
+                    then: "Mar",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 4] },
+                    then: "Apr",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 5] },
+                    then: "May",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 6] },
+                    then: "Jun",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 7] },
+                    then: "Jul",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 8] },
+                    then: "Aug",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 9] },
+                    then: "Sep",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 10] },
+                    then: "Oct",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 11] },
+                    then: "Nov",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$start_date" }, 12] },
+                    then: "Dec",
+                  },
+                ],
+                default: "",
+              },
+            },
+            " ",
+            { $substr: [{ $year: "$start_date" }, 0, 4] },
+          ],
+        },
+      },
+    },
+    {
+      $addFields: {
+        "registration.last_date": {
+          $concat: [
+            { $substr: [{ $dayOfMonth: "$registration.last_date" }, 0, 2] },
+            " ",
+            {
+              $switch: {
+                branches: [
+                  {
+                    case: { $eq: [{ $month: "$registration.last_date" }, 1] },
+                    then: "Jan",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$registration.last_date" }, 2] },
+                    then: "Feb",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$registration.last_date" }, 3] },
+                    then: "Mar",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$registration.last_date" }, 4] },
+                    then: "Apr",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$registration.last_date" }, 5] },
+                    then: "May",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$registration.last_date" }, 6] },
+                    then: "Jun",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$registration.last_date" }, 7] },
+                    then: "Jul",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$registration.last_date" }, 8] },
+                    then: "Aug",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$registration.last_date" }, 9] },
+                    then: "Sep",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$registration.last_date" }, 10] },
+                    then: "Oct",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$registration.last_date" }, 11] },
+                    then: "Nov",
+                  },
+                  {
+                    case: { $eq: [{ $month: "$registration.last_date" }, 12] },
+                    then: "Dec",
+                  },
+                ],
+                default: "",
+              },
+            },
+            " ",
+            { $substr: [{ $year: "$registration.last_date" }, 0, 4] },
+          ],
+        },
+      },
+    },
+  ]);
+
+  return data;
+};
