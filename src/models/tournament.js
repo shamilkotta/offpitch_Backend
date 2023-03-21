@@ -73,40 +73,21 @@ const tournamentSchema = new mongoose.Schema(
         default: "open",
       },
     },
-    tickets: {
-      matchday_ticket: {
-        is: {
-          type: Boolean,
-          required: true,
-          default: false,
-        },
-        amount: {
-          type: Number,
-          required: true,
-          default: 0,
-        },
-        total: {
-          type: Number,
-          required: true,
-          default: 0,
-        },
+    ticket: {
+      is: {
+        type: Boolean,
+        required: true,
+        default: false,
       },
-      season_ticket: {
-        is: {
-          type: Boolean,
-          required: true,
-          default: false,
-        },
-        amount: {
-          type: Number,
-          required: true,
-          default: 0,
-        },
-        total: {
-          type: Number,
-          required: true,
-          default: 0,
-        },
+      amount: {
+        type: Number,
+        required: true,
+        default: 0,
+      },
+      total: {
+        type: Number,
+        required: true,
+        default: 0,
       },
     },
     tournament_type: {
