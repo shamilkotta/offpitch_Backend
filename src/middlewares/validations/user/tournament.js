@@ -89,65 +89,32 @@ const stepTwoSchema = yup.object().shape({
 });
 
 const stepThreeSchema = yup.object().shape({
-  tickets: yup
+  ticket: yup
     .object()
     .shape({
-      matchday_ticket: yup
-        .object()
-        .shape({
-          is: yup
-            .boolean("choose a valid ticket option")
-            .typeError("Choose valid ticket option"),
-          amount: yup
-            .number("Enter a valid ticket amount")
-            .typeError("Enter a valid ticket amount")
-            .when("is", {
-              is: true,
-              then: (schema) =>
-                schema
-                  .required("Enter a valid ticket amount")
-                  .min(1, "Enter a valid ticket amount"),
-            }),
-          total: yup
-            .number("Enter total tickets count")
-            .typeError("Enter total tickets count")
-            .when("is", {
-              is: true,
-              then: (schema) =>
-                schema
-                  .required("Enter total tickets count")
-                  .min(1, "Enter total tickets count"),
-            }),
-        })
-        .typeError("Choose a valid ticket type"),
-      season_ticket: yup
-        .object()
-        .shape({
-          is: yup
-            .boolean("choose a valid ticket option")
-            .typeError("Choose valid ticket option"),
-          amount: yup
-            .number("Enter a valid ticket amount")
-            .typeError("Enter a valid ticket amount")
-            .when("is", {
-              is: true,
-              then: (schema) =>
-                schema
-                  .required("Enter a valid ticket amount")
-                  .min(1, "Enter a valid ticket amount"),
-            }),
-          total: yup
-            .number("Enter total tickets count")
-            .typeError("Enter total tickets count")
-            .when("is", {
-              is: true,
-              then: (schema) =>
-                schema
-                  .required("Enter total tickets count")
-                  .min(1, "Enter total tickets count"),
-            }),
-        })
-        .typeError("Choose a valid ticket type"),
+      is: yup
+        .boolean("choose a valid ticket option")
+        .typeError("Choose valid ticket option"),
+      amount: yup
+        .number("Enter a valid ticket amount")
+        .typeError("Enter a valid ticket amount")
+        .when("is", {
+          is: true,
+          then: (schema) =>
+            schema
+              .required("Enter a valid ticket amount")
+              .min(1, "Enter a valid ticket amount"),
+        }),
+      total: yup
+        .number("Enter total tickets count")
+        .typeError("Enter total tickets count")
+        .when("is", {
+          is: true,
+          then: (schema) =>
+            schema
+              .required("Enter total tickets count")
+              .min(1, "Enter total tickets count"),
+        }),
     })
     .typeError("Choose a valid ticket type"),
 });
