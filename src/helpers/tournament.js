@@ -69,7 +69,7 @@ export const scheduleLeague = async ({ id: tournamentId, teams }) => {
             profile: group.teams.filter(
               (ele) => ele.c_position === poolA[ind]
             )[0].profile,
-            goals: 0,
+            goals: -1,
             scorer: [],
           },
           teamB: {
@@ -80,7 +80,7 @@ export const scheduleLeague = async ({ id: tournamentId, teams }) => {
             profile: group.teams.filter(
               (ele) => ele.c_position === poolB[ind]
             )[0].profile,
-            goals: 0,
+            goals: -1,
             scorer: [],
           },
         };
@@ -158,13 +158,13 @@ export const scheduleTournament = async ({ id: tournamentId, teams }) => {
             club: teams[(selectTeam += 1)].club,
             name: teams[selectTeam].name,
             profile: teams[selectTeam].profile,
-            goals: 0,
+            goals: -1,
           },
           teamB: {
             club: teams[(selectTeam += 1)].club,
             name: teams[selectTeam].name,
             profile: teams[selectTeam].profile,
-            goals: 0,
+            goals: -1,
           },
         };
 
@@ -177,14 +177,25 @@ export const scheduleTournament = async ({ id: tournamentId, teams }) => {
           match = {
             match_no: j,
           };
-        else if (byeMatches.includes(j * 2) || byeMatches.includes(j * 2 + 1))
+        else if (byeMatches.includes(j * 2))
           match = {
             match_no: j,
             teamA: {
               club: teams[(selectTeam += 1)].club,
               name: teams[selectTeam].name,
               profile: teams[selectTeam].profile,
-              goals: 0,
+              goals: -1,
+              scorer: [],
+            },
+          };
+        else if (byeMatches.includes(j * 2 + 1))
+          match = {
+            match_no: j,
+            teamB: {
+              club: teams[(selectTeam += 1)].club,
+              name: teams[selectTeam].name,
+              profile: teams[selectTeam].profile,
+              goals: -1,
               scorer: [],
             },
           };
@@ -195,14 +206,14 @@ export const scheduleTournament = async ({ id: tournamentId, teams }) => {
               club: teams[(selectTeam += 1)].club,
               name: teams[selectTeam].name,
               profile: teams[selectTeam].profile,
-              goals: 0,
+              goals: -1,
               scorer: [],
             },
             teamB: {
               club: teams[(selectTeam += 1)].club,
               name: teams[selectTeam].name,
               profile: teams[selectTeam].profile,
-              goals: 0,
+              goals: -1,
               scorer: [],
             },
           };
@@ -217,14 +228,14 @@ export const scheduleTournament = async ({ id: tournamentId, teams }) => {
             club: teams[(selectTeam += 1)].club,
             name: teams[selectTeam].name,
             profile: teams[selectTeam].profile,
-            goals: 0,
+            goals: -1,
             scorer: [],
           },
           teamB: {
             club: teams[(selectTeam += 1)].club,
             name: teams[selectTeam].name,
             profile: teams[selectTeam].profile,
-            goals: 0,
+            goals: -1,
             scorer: [],
           },
         };

@@ -432,15 +432,7 @@ export const getTournamentData = async ({ id }) => {
                 if: {
                   $or: [
                     {
-                      $lte: ["$registration.last_date", new Date()],
-                    },
-                    {
-                      $lte: [
-                        "$no_teams",
-                        {
-                          $size: "$teams",
-                        },
-                      ],
+                      $lt: ["$registration.last_date", new Date()],
                     },
                   ],
                 },
