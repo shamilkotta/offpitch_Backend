@@ -161,10 +161,10 @@ export const getUserTournamentController = async (req, res, next) => {
               date: "$start_date",
             },
           },
-          registration_date: {
+          "registration.last_date": {
             $dateToString: {
               format: "%Y-%m-%d",
-              date: "$registration_date",
+              date: "$registration.last_date",
             },
           },
         },
@@ -342,6 +342,47 @@ export const tournamentRegisterController = async (req, res, next) => {
   } catch (err) {
     return next(err);
   }
+};
+
+// updaate pending registration controller
+export const updateRegistrationController = async (req, res, next) => {
+  const { id: tournament } = req.params;
+
+  // check is club is active
+  let club;
+  try {
+    club = await Club.findOne({ author: req.userData.id, status: "active" });
+    if (!club)
+      return next(ErrorResponse.unauthorized("You don't have a active club"));
+  } catch (err) {
+    return next(err);
+  }
+
+  // find club from registered list
+  try {
+    const isRegistered = await checkRegistered({
+      userId: req.userData.id,
+      id: tournament,
+    });
+    if (!isRegistered)
+      return next(ErrorResponse.badRequest("Can't fetch data, register again"));
+  } catch (err) {
+    return next(err);
+  }
+
+  try {
+    const { registration } = await getTournamentData({ id: tournament });
+
+    if (registration.status !== "open")
+      return next(
+        ErrorResponse.badRequest("Sorry, registration is already closed")
+      );
+  } catch (err) {
+    return next(err);
+  }
+
+  req.club = club;
+  return next();
 };
 
 export const getTournamentInvoice = async (req, res, next) => {
@@ -561,4 +602,46 @@ export const getRegisteredTournaments = async (req, res, next) => {
   } catch (err) {
     return next(err);
   }
+};
+
+export const cancelRegistrationController = async (req, res, next) => {
+  const { id: tournament } = req.params;
+  const { id: userId } = req.userData;
+
+  // find club
+  let club;
+  try {
+    club = await Club.findOne({ author: userId }, { _id: 1 });
+
+    if (!club?._id) return next(ErrorResponse.badRequest("Can't find club"));
+  } catch (err) {
+    return next(err);
+  }
+
+  // cancel registration
+  try {
+    const result = await Tournament.updateOne(
+      {
+        _id: tournament,
+      },
+      {
+        $pull: {
+          teams: {
+            club: club._id,
+            status: "pending",
+          },
+        },
+      }
+    );
+
+    if (!result.modifiedCount)
+      return next(ErrorResponse.badRequest("Can't find club"));
+  } catch (err) {
+    return next(err);
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Registration canceled",
+  });
 };

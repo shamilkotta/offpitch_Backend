@@ -1,6 +1,7 @@
 import express from "express";
 
 import {
+  cancelRegistrationController,
   getRegisteredTournaments,
   getTournamentInvoice,
   getUserTournamentController,
@@ -9,6 +10,7 @@ import {
   putTournamentController,
   saveToWatchlistController,
   tournamentRegisterController,
+  updateRegistrationController,
 } from "../controllers/tournamentController.js";
 import {
   getClubController,
@@ -67,6 +69,16 @@ router.post(
   tournamentRegisterController,
   getTournamentInvoice
 );
+
+// update pending registration
+router.post(
+  "/tournament/:id/register-update",
+  updateRegistrationController,
+  getTournamentInvoice
+);
+
+// cancel registration
+router.delete("/tournament/:id/cancel", cancelRegistrationController);
 
 // process registration payment
 router.post("/tournament/:id/fee", postRegistrationFee);
