@@ -2,6 +2,7 @@ import express from "express";
 
 import {
   getClubsController,
+  getTransactionsController,
   patchClubController,
 } from "../controllers/clubController.js";
 import {
@@ -22,5 +23,8 @@ router.get("/users", getUsersController);
 
 // change status of user
 router.patch("/user/update-status", patchUserController);
+
+// all transactions
+router.get("/transactions", getTransactionsController);
 
 export default router;

@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 import ErrorResponse from "../error/ErrorResponse.js";
-import { allClubsData } from "../helpers/admin.js";
+import { allClubsData, allTransactions } from "../helpers/admin.js";
 import { getClubData, getUserPlayers } from "../helpers/user.js";
 import Club from "../models/club.js";
 import User from "../models/user.js";
@@ -54,7 +54,7 @@ export const putClubController = async (req, res, next) => {
     if (response.modifiedCount)
       return res
         .status(200)
-        .json({ success: true, message: "Club data saved successfully" });
+        .json({ success: true, message: "Club data submitted successfully" });
 
     return next(ErrorResponse.badRequest("Something went wrong"));
   } catch (err) {
@@ -160,5 +160,29 @@ export const getPlayersController = async (req, res, next) => {
     res.status(200).json(result);
   } catch (err) {
     next(err);
+  }
+};
+
+export const getTransactionsController = async (req, res, next) => {
+  let { page = 1, limit = 10, filter = "" } = req.query;
+  const { search = "", sort = "createdAt,-1" } = req.query;
+  page = parseInt(page, 10);
+  limit = parseInt(limit, 10);
+  if (filter === "true") filter = true;
+  else if (filter === "false") filter = false;
+  else filter = "";
+
+  // get all transaction data to display in table
+  try {
+    const data = await allTransactions({
+      page,
+      limit,
+      search,
+      sort,
+      filter,
+    });
+    return res.status(200).json({ success: true, data });
+  } catch (err) {
+    return next(err);
   }
 };
