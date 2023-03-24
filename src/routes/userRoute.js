@@ -22,7 +22,10 @@ import clubValidation from "../middlewares/validations/user/club.js";
 import playerValidation from "../middlewares/validations/user/player.js";
 import tournamentValidation from "../middlewares/validations/user/tournament.js";
 import { parseCover, parseDoc } from "../middlewares/multer.js";
-import { scheduelMatchesController } from "../controllers/matchController.js";
+import {
+  scheduelMatchesController,
+  updateResultController,
+} from "../controllers/matchController.js";
 import {
   getUserProfile,
   getUserTransactions,
@@ -94,5 +97,8 @@ router.get("/transactions", getUserTransactions);
 
 // get profile
 router.get("/profile", getUserProfile);
+
+// update match result
+router.post("/tournament/:id/result", updateResultController);
 
 export default router;
