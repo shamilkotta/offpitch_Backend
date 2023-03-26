@@ -4,6 +4,7 @@ import { allUsersData } from "../helpers/admin.js";
 import { getProfile, getTransactions, getWatchlist } from "../helpers/user.js";
 import User from "../models/user.js";
 import Club from "../models/club.js";
+import Tournament from "../models/tournament.js";
 
 // get all users
 export const getUsersController = async (req, res, next) => {
@@ -99,6 +100,48 @@ export const getUserProfile = async (req, res, next) => {
     return res.status(200).json({
       success: true,
       data,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const getDashboardData = async (req, res, next) => {
+  try {
+    const userCount = await User.find({}).count();
+    const clubCount = await Club.find({}).count();
+    const allTournament = await Tournament.find({}).count();
+    const activeTournament = await Tournament.find({
+      "registration.status": "scheduled",
+    }).count();
+    const upcomingTournament = await Tournament.find({
+      "registration.status": "open",
+    }).count();
+
+    const wallet = await User.aggregate([
+      {
+        $project: {
+          wallet: 1,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          wallet: { $sum: "$wallet" },
+        },
+      },
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        userCount,
+        clubCount,
+        allTournament,
+        activeTournament,
+        upcomingTournament,
+        wallet: wallet[0]?.wallet,
+      },
     });
   } catch (err) {
     return next(err);
