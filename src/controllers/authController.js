@@ -142,7 +142,7 @@ export const emailVerificationController = async (req, res, next) => {
 export const refreshController = async (req, res, next) => {
   const { cookies } = req;
   let token = cookies?.authToken;
-  if (!cookies?.authToken) token = req.headers?.authToken;
+  if (!cookies?.authToken) token = req.headers?.authtoken;
 
   if (!token) return next(ErrorResponse.unauthorized("Unauthorized"));
 
