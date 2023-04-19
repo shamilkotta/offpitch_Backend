@@ -51,6 +51,11 @@ const clubValidation = (req, res, next) => {
             next();
           })
           .catch(next);
+      else {
+        req.validData.profile = req.body?.profile;
+        req.validData.doc = req.body?.doc;
+        next();
+      }
     })
     .catch((err) => {
       const [validationErr] = err?.errors || ["Something went wrong"];
